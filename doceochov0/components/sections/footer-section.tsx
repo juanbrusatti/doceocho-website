@@ -155,6 +155,14 @@ export default function FooterSection() {
           <p className="font-sans text-cream/20 text-[10px] tracking-wider">
             Córdoba, Argentina
           </p>
+          <a
+            href="https://dlay.com.ar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-sans text-cream/15 text-[10px] tracking-wider hover:text-cream/30 transition-colors duration-300"
+          >
+            Desarrollado con ❤️ por dlay.com.ar
+          </a>
         </div>
       </div>
     </footer>

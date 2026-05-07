@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 
 export default function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true)
@@ -38,6 +39,15 @@ export default function LoadingScreen() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="flex flex-col items-center gap-6"
           >
+            <div className="relative w-48 h-48 md:w-56 md:h-56">
+              <Image
+                src="/logo-doce8.png"
+                alt="DoceOcho Estudio Logo"
+                fill
+                priority
+                className="object-contain"
+              />
+            </div>
             <div className="flex flex-col items-center gap-1">
               <span className="font-serif text-cream text-5xl tracking-[0.25em] font-light">
                 DoceOcho
