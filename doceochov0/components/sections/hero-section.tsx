@@ -22,12 +22,12 @@ export default function HeroSection() {
 
   const lineVariant = {
     hidden: { y: '110%', opacity: 0 },
-    show: { y: '0%', opacity: 1, transition: { duration: 1.1, ease: [0.76, 0, 0.24, 1] } },
+    show: { y: '0%', opacity: 1, transition: { duration: 1.1, ease: [0.76, 0, 0.24, 1] as const } },
   }
 
   const fadeUpVariant = {
     hidden: { y: 24, opacity: 0 },
-    show: { y: 0, opacity: 1, transition: { duration: 0.9, ease: [0.76, 0, 0.24, 1] } },
+    show: { y: 0, opacity: 1, transition: { duration: 0.9, ease: [0.76, 0, 0.24, 1] as const } },
   }
 
   return (

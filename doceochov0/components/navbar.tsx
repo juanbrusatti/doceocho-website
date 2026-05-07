@@ -44,7 +44,7 @@ export default function Navbar() {
           y: hidden ? -100 : 0,
           opacity: hidden ? 0 : 1,
         }}
-        transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
+        transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] as const }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
             ? 'backdrop-blur-md bg-petroleum-dark/70 border-b border-cream/10'
@@ -131,7 +131,7 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] as const }}
             className="fixed inset-0 z-40 bg-petroleum-dark flex flex-col items-center justify-center gap-8"
           >
             {navLinks.map((link, i) => (
