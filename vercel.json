@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd doceochov0 && npm run build",
+  "outputDirectory": "doceochov0/.next",
+  "installCommand": "cd doceochov0 && npm install",
+  "framework": "nextjs"
+}
