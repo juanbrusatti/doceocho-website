@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const navLinks = [
   { label: 'Estudio', href: '#estudio' },
@@ -54,15 +55,25 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex flex-col items-start gap-0.5 group"
+            className="flex items-center gap-3 group"
             aria-label="DoceOcho Studio - Ir al inicio"
           >
-            <span className="font-serif text-cream text-2xl tracking-[0.2em] font-light leading-none group-hover:text-gold transition-colors duration-300">
-              DoceOcho
-            </span>
-            <span className="font-sans text-gold text-[7px] tracking-[0.5em] uppercase leading-none">
-              Estudio
-            </span>
+            <div className="relative w-10 h-10">
+              <Image
+                src="/logo-doce8.png"
+                alt="DoceOcho Estudio Logo"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="font-serif text-cream text-2xl tracking-[0.2em] font-light leading-none group-hover:text-gold transition-colors duration-300">
+                DoceOcho
+              </span>
+              <span className="font-sans text-gold text-[7px] tracking-[0.5em] uppercase leading-none">
+                Estudio
+              </span>
+            </div>
           </Link>
 
           {/* Desktop nav */}
@@ -81,7 +92,7 @@ export default function Navbar() {
           {/* CTA + burger */}
           <div className="flex items-center gap-6">
             <a
-              href="https://wa.me/5493512000000?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos."
+              href="https://wa.me/54935153927563?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos."
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase font-sans text-gold border border-gold/40 px-4 py-2 hover:bg-gold hover:text-petroleum-dark transition-all duration-300"
@@ -139,7 +150,7 @@ export default function Navbar() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: navLinks.length * 0.07 + 0.1, duration: 0.4 }}
-              href="https://wa.me/5493512000000"
+              href="https://wa.me/54935153927563"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-8 text-[10px] tracking-[0.4em] uppercase font-sans text-gold border border-gold/40 px-8 py-3 hover:bg-gold hover:text-petroleum-dark transition-all duration-300"

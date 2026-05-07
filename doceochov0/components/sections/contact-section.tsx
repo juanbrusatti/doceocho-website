@@ -35,7 +35,7 @@ export default function ContactSection() {
     e.preventDefault()
     // Build WhatsApp message as fallback
     const msg = `Hola, soy ${formState.name}. Me interesa consultar sobre ${formState.projectType || 'un proyecto'}. Mi email: ${formState.email}. Teléfono: ${formState.phone}. Mensaje: ${formState.message}`
-    window.open(`https://wa.me/5493512000000?text=${encodeURIComponent(msg)}`, '_blank')
+    window.open(`https://wa.me/+54935153927563?text=${encodeURIComponent(msg)}`, '_blank')
     setSent(true)
   }
 
@@ -96,7 +96,7 @@ export default function ContactSection() {
               className="flex flex-col gap-5 pt-4 border-t border-cream/10"
             >
               <a
-                href="https://wa.me/5493512000000"
+                href="https://wa.me/+54935153927563"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 group"
@@ -108,7 +108,7 @@ export default function ContactSection() {
                   </svg>
                 </span>
                 <div>
-                  <p className="font-sans text-cream text-sm">+54 9 351 200-0000</p>
+                  <p className="font-sans text-cream text-sm">+54 9 35153927563</p>
                   <p className="font-sans text-cream/40 text-xs">WhatsApp — respuesta inmediata</p>
                 </div>
               </a>
