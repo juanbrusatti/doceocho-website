@@ -48,7 +48,7 @@ export default function TestimonialsSection() {
               key={phrase.quote}
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 1, delay: i * 0.2, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 1, delay: i * 0.2, ease: [0.76, 0, 0.24, 1] as const }}
               className="text-center"
             >
               {phrase.emphasis ? (
@@ -68,7 +68,7 @@ export default function TestimonialsSection() {
         <motion.div
           initial={{ scaleX: 0 }}
           animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1], delay: 0.5 }}
+          transition={{ duration: 1.4, ease: [0.76, 0, 0.24, 1] as const, delay: 0.5 }}
           className="w-full h-px bg-petroleum-dark/10 mb-20 origin-left"
         />
 
@@ -77,7 +77,7 @@ export default function TestimonialsSection() {
           <motion.span
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ duration: 1, ease: [0.76, 0, 0.24, 1], delay: 0.6 }}
+            transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] as const, delay: 0.6 }}
             className="block w-12 h-px bg-gold origin-left"
           />
           <motion.span
@@ -97,7 +97,7 @@ export default function TestimonialsSection() {
               key={t.author}
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.8, delay: 0.1 * i + 0.7, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 0.8, delay: 0.1 * i + 0.7, ease: [0.76, 0, 0.24, 1] as const }}
               className="flex flex-col gap-6 border-t border-petroleum-dark/10 pt-8"
             >
               <span className="font-serif text-gold text-4xl leading-none" aria-hidden="true">&ldquo;</span>

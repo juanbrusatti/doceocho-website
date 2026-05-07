@@ -20,11 +20,11 @@ export default function AboutSection() {
   }
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
-    show: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.76, 0, 0.24, 1] } },
+    show: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.76, 0, 0.24, 1] as const } },
   }
   const lineReveal = {
     hidden: { scaleX: 0 },
-    show: { scaleX: 1, transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] } },
+    show: { scaleX: 1, transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] as const } },
   }
 
   return (
@@ -120,7 +120,7 @@ export default function AboutSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
-            transition={{ duration: 1.2, delay: 0.3, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1.2, delay: 0.3, ease: [0.76, 0, 0.24, 1] as const }}
             className="relative"
           >
             <div className="relative aspect-[3/4] overflow-hidden">

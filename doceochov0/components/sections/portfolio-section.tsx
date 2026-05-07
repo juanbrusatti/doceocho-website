@@ -80,7 +80,7 @@ export default function PortfolioSection() {
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-                transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+                transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] as const }}
                 className="block w-12 h-px bg-gold origin-left"
               />
               <motion.span
@@ -96,7 +96,7 @@ export default function PortfolioSection() {
               id="portfolio-heading"
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] as const }}
               className="font-serif font-light text-petroleum-dark text-4xl md:text-5xl lg:text-6xl leading-tight text-balance"
             >
               Ambientes que definen<br className="hidden md:block" /> una forma de vivir.
@@ -143,7 +143,7 @@ export default function PortfolioSection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.6, delay: i * 0.08, ease: [0.76, 0, 0.24, 1] }}
+                transition={{ duration: 0.6, delay: i * 0.08, ease: [0.76, 0, 0.24, 1] as const }}
                 className={`relative overflow-hidden group cursor-pointer ${
                   project.size === 'large' ? 'md:col-span-2' : ''
                 }`}

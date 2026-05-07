@@ -35,7 +35,7 @@ export default function ContactSection() {
     e.preventDefault()
     // Build WhatsApp message as fallback
     const msg = `Hola, soy ${formState.name}. Me interesa consultar sobre ${formState.projectType || 'un proyecto'}. Mi email: ${formState.email}. Teléfono: ${formState.phone}. Mensaje: ${formState.message}`
-    window.open(`https://wa.me/+54935153927563?text=${encodeURIComponent(msg)}`, '_blank')
+    window.open(`https://wa.me/54935153927563?text=${encodeURIComponent(msg)}`, '_blank')
     setSent(true)
   }
 
@@ -52,7 +52,7 @@ export default function ContactSection() {
           <motion.span
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] as const }}
             className="block w-12 h-px bg-gold origin-left"
           />
           <motion.span
@@ -72,7 +72,7 @@ export default function ContactSection() {
               id="contact-heading"
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] as const }}
               className="font-serif font-light text-cream text-4xl md:text-5xl leading-tight text-balance"
             >
               Hablemos de tu próximo proyecto.
@@ -96,7 +96,7 @@ export default function ContactSection() {
               className="flex flex-col gap-5 pt-4 border-t border-cream/10"
             >
               <a
-                href="https://wa.me/+54935153927563"
+                href="https://wa.me/54935153927563"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 group"
@@ -147,7 +147,7 @@ export default function ContactSection() {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.76, 0, 0.24, 1] as const }}
           >
             {sent ? (
               <div className="flex flex-col items-start gap-6 py-16">

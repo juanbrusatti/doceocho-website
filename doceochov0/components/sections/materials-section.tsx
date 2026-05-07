@@ -51,7 +51,7 @@ export default function MaterialsSection() {
           <motion.span
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] as const }}
             className="block w-12 h-px bg-gold origin-left"
           />
           <motion.span
@@ -85,7 +85,7 @@ export default function MaterialsSection() {
               id="materials-heading"
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] as const }}
               className="font-serif font-light text-cream text-4xl md:text-5xl leading-tight text-balance"
             >
               La calidad es una decisión que se toma antes de empezar.
@@ -94,7 +94,7 @@ export default function MaterialsSection() {
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.9, delay: 0.35, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 0.9, delay: 0.35, ease: [0.76, 0, 0.24, 1] as const }}
               className="font-sans font-light text-cream/50 text-base leading-relaxed"
             >
               No usamos lo que hay. Seleccionamos lo mejor disponible para cada proyecto,
@@ -108,7 +108,7 @@ export default function MaterialsSection() {
                   key={item.label}
                   initial={{ opacity: 0, x: -20 }}
                   animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                  transition={{ duration: 0.8, delay: 0.15 * i + 0.5, ease: [0.76, 0, 0.24, 1] }}
+                  transition={{ duration: 0.8, delay: 0.15 * i + 0.5, ease: [0.76, 0, 0.24, 1] as const }}
                   className="group border-b border-cream/10 py-6 hover:border-gold/30 transition-colors duration-300"
                 >
                   <div className="flex items-start gap-4">

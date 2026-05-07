@@ -27,7 +27,7 @@ export default function FooterSection() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 1, delay: 0.15, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1, delay: 0.15, ease: [0.76, 0, 0.24, 1] as const }}
             className="font-serif font-light italic text-cream text-3xl md:text-4xl lg:text-5xl text-balance max-w-2xl"
           >
             &ldquo;Diseñado para perdurar más allá de las tendencias.&rdquo;

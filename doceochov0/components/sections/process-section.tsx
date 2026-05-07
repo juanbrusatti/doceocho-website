@@ -59,7 +59,7 @@ export default function ProcessSection() {
           <motion.span
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] as const }}
             className="block w-12 h-px bg-gold origin-left"
           />
           <motion.span
@@ -77,7 +77,7 @@ export default function ProcessSection() {
             id="process-heading"
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-            transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] as const }}
             className="font-serif font-light text-cream text-4xl md:text-5xl lg:text-6xl leading-tight text-balance"
           >
             ¿Cómo es trabajar con nosotros?
@@ -85,7 +85,7 @@ export default function ProcessSection() {
           <motion.p
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-            transition={{ duration: 1, delay: 0.35, ease: [0.76, 0, 0.24, 1] }}
+            transition={{ duration: 1, delay: 0.35, ease: [0.76, 0, 0.24, 1] as const }}
             className="font-sans font-light text-cream/50 text-base leading-relaxed self-end"
           >
             Un proceso claro, riguroso y transparente. Desde la primera conversación hasta la entrega final,
@@ -100,7 +100,7 @@ export default function ProcessSection() {
               key={step.number}
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.8, delay: 0.1 * i + 0.4, ease: [0.76, 0, 0.24, 1] }}
+              transition={{ duration: 0.8, delay: 0.1 * i + 0.4, ease: [0.76, 0, 0.24, 1] as const }}
               className="group relative border-t border-cream/10 pt-8 pb-10 pr-8 hover:border-gold/40 transition-colors duration-500"
             >
               {/* Step number */}
