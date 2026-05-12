@@ -88,7 +88,7 @@ export default function MaterialsSection() {
               transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] as const }}
               className="font-serif font-light text-cream text-4xl md:text-5xl leading-tight text-balance"
             >
-              La calidad es una decisión que se toma antes de empezar.
+              La materia prima importa tanto como el diseño.
             </motion.h2>
 
             <motion.p
@@ -100,6 +100,17 @@ export default function MaterialsSection() {
               No usamos lo que hay. Seleccionamos lo mejor disponible para cada proyecto,
               cada función, cada exigencia del diseño.
             </motion.p>
+
+            <motion.blockquote
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.9, delay: 0.45 }}
+              className="border-l-2 border-gold pl-6 mt-4"
+            >
+              <p className="font-serif italic text-cream text-xl md:text-2xl leading-snug">
+                &ldquo;Construido para ser usado. Diseñado para perdurar.&rdquo;
+              </p>
+            </motion.blockquote>
 
             {/* Quality list */}
             <div className="flex flex-col gap-0">

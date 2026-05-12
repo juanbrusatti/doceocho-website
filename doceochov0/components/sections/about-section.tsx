@@ -68,7 +68,7 @@ export default function AboutSection() {
                 id="about-heading"
                 className="font-serif font-light text-petroleum-dark text-4xl md:text-5xl lg:text-6xl leading-tight text-balance"
               >
-                Diseñamos ambientes que trascienden la tendencia.
+                Creamos espacios que trascienden la tendencia.
               </motion.h2>
             </div>
 
@@ -76,17 +76,7 @@ export default function AboutSection() {
               variants={fadeUp}
               className="font-sans font-light text-petroleum-dark/70 text-base leading-relaxed max-w-md"
             >
-              Somos un estudio de arquitectura interior especializado en proyectos completos.
-              Diseñamos, fabricamos e instalamos cada ambiente con una obsesión por el detalle
-              que pocas veces se encuentra en el mercado.
-            </motion.p>
-
-            <motion.p
-              variants={fadeUp}
-              className="font-sans font-light text-petroleum-dark/70 text-base leading-relaxed max-w-md"
-            >
-              Nuestra fortaleza no es el mueble aislado — es la capacidad de concebir y ejecutar
-              el espacio completo, desde la arquitectura hasta el último terminado.
+              Doce Ocho nació de la convicción de que un espacio bien resuelto transforma la manera en que se vive. Diseñamos, fabricamos e instalamos cada proyecto como una obra única — con taller propio, equipo dedicado y un proceso que no deja nada al azar.
             </motion.p>
 
             <motion.blockquote
@@ -94,7 +84,7 @@ export default function AboutSection() {
               className="border-l-2 border-gold pl-6 mt-2"
             >
               <p className="font-serif italic text-petroleum-dark text-xl md:text-2xl leading-snug">
-                &ldquo;La calidad no se exhibe. Se siente en cada superficie que tocás.&rdquo;
+                &ldquo;Lo que no se ve es lo que sostiene todo lo demás.&rdquo;
               </p>
             </motion.blockquote>
 
