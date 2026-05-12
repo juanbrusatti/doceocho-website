@@ -126,6 +126,15 @@ export default function HeroSection() {
               </svg>
               Consultar proyecto
             </a>
+            <a
+              href="https://instagram.com/doce8.estudio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 font-sans text-[11px] tracking-[0.35em] uppercase text-cream/80 border border-cream/25 px-6 py-3.5 hover:border-cream hover:text-cream transition-all duration-300"
+              aria-label="Seguir en Instagram"
+            >
+              Instagram
+            </a>
             <button
               onClick={() => {
                 const el = document.querySelector('#proyectos')

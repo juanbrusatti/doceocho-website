@@ -99,6 +99,15 @@ export default function Navbar() {
             >
               WhatsApp
             </a>
+            <a
+              href="https://instagram.com/doce8.estudio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase font-sans text-gold border border-gold/40 px-4 py-2 hover:bg-gold hover:text-petroleum-dark transition-all duration-300"
+              aria-label="Seguir en Instagram"
+            >
+              Instagram
+            </a>
 
             {/* Mobile burger */}
             <button
@@ -156,6 +165,18 @@ export default function Navbar() {
               className="mt-8 text-[10px] tracking-[0.4em] uppercase font-sans text-gold border border-gold/40 px-8 py-3 hover:bg-gold hover:text-petroleum-dark transition-all duration-300"
             >
               WhatsApp
+            </motion.a>
+            <motion.a
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: navLinks.length * 0.07 + 0.15, duration: 0.4 }}
+              href="https://instagram.com/doce8.estudio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] tracking-[0.4em] uppercase font-sans text-gold border border-gold/40 px-8 py-3 hover:bg-gold hover:text-petroleum-dark transition-all duration-300 flex items-center gap-2"
+              aria-label="Seguir en Instagram"
+            >
+              Instagram
             </motion.a>
           </motion.div>
         )}
