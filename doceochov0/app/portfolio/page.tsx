@@ -170,13 +170,9 @@ export default function PortfolioPage() {
                     delay: index * 0.05,
                     ease: [0.76, 0, 0.24, 1] as const
                   }}
-                  className="group relative overflow-hidden cursor-pointer aspect-[4/5]"
+                  className="group relative overflow-hidden aspect-[4/5]"
                   onMouseEnter={() => setHoveredProject(project.id)}
                   onMouseLeave={() => setHoveredProject(null)}
-                  onClick={() => {
-                    // Future: open project detail modal or navigate
-                    console.log('Project clicked:', project.title)
-                  }}
                 >
                   {/* Image */}
                   <div className="relative w-full h-full">
