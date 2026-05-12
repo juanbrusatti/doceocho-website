@@ -9,6 +9,7 @@ const navLinks = [
   { label: 'Estudio', href: '#estudio' },
   { label: 'Proceso', href: '#proceso' },
   { label: 'Proyectos', href: '#proyectos' },
+  { label: 'Portfolio', href: '/portfolio' },
   { label: 'Materiales', href: '#materiales' },
   { label: 'Contacto', href: '#contacto' },
 ]
@@ -32,8 +33,15 @@ export default function Navbar() {
 
   const handleNavClick = (href: string) => {
     setMenuOpen(false)
-    const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    
+    // Check if it's an anchor link or page navigation
+    if (href.startsWith('#')) {
+      const el = document.querySelector(href)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      // Page navigation
+      window.location.href = href
+    }
   }
 
   return (
@@ -175,7 +183,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="text-[10px] tracking-[0.4em] uppercase font-sans text-gold border border-gold/40 px-8 py-3 hover:bg-gold hover:text-petroleum-dark transition-all duration-300 flex items-center gap-2"
               aria-label="Seguir en Instagram"
-            >
+            >s
               Instagram
             </motion.a>
           </motion.div>
