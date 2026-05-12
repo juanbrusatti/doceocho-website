@@ -173,6 +173,11 @@ export default function PortfolioPage() {
                   className="group relative overflow-hidden aspect-[4/5]"
                   onMouseEnter={() => setHoveredProject(project.id)}
                   onMouseLeave={() => setHoveredProject(null)}
+                  onFocus={() => setHoveredProject(project.id)}
+                  onBlur={() => setHoveredProject(null)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Ver proyecto: ${project.title}`}
                 >
                   {/* Image */}
                   <div className="relative w-full h-full">
@@ -184,23 +189,43 @@ export default function PortfolioPage() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     />
                     
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-petroleum-dark/0 group-hover:bg-petroleum-dark/40 transition-colors duration-500" />
+                    {/* Overlay - visible by default on mobile, enhanced on hover on desktop */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-petroleum-dark/60 via-petroleum-dark/20 to-transparent md:bg-petroleum-dark/0 md:group-hover:bg-petroleum-dark/40 transition-colors duration-500" />
                     
-                    {/* Project info on hover */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={hoveredProject === project.id ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute bottom-0 left-0 right-0 p-6 text-cream"
-                    >
-                      <h3 className="font-serif text-xl md:text-2xl font-light mb-2">
-                        {project.title}
-                      </h3>
-                      <p className="font-sans text-sm text-cream/80 capitalize">
-                        {project.category}
-                      </p>
-                    </motion.div>
+                    {/* Project info - visible by default on mobile, enhanced on hover on desktop */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-cream">
+                      <motion.div
+                        initial={{ opacity: 1, y: 0 }}
+                        animate={{
+                          opacity: hoveredProject === project.id ? 1 : 1,
+                          y: hoveredProject === project.id ? 0 : 0,
+                          scale: hoveredProject === project.id ? 1.02 : 1
+                        }}
+                        transition={{ duration: 0.3 }}
+                        className="md:hidden"
+                      >
+                        <h3 className="font-serif text-lg md:text-xl font-light mb-1">
+                          {project.title}
+                        </h3>
+                        <p className="font-sans text-xs text-cream/80 capitalize">
+                          {project.category}
+                        </p>
+                      </motion.div>
+                      
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={hoveredProject === project.id ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="hidden md:block"
+                      >
+                        <h3 className="font-serif text-xl md:text-2xl font-light mb-2">
+                          {project.title}
+                        </h3>
+                        <p className="font-sans text-sm text-cream/80 capitalize">
+                          {project.category}
+                        </p>
+                      </motion.div>
+                    </div>
                   </div>
                 </motion.article>
               ))}
