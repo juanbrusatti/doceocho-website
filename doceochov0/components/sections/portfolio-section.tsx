@@ -99,7 +99,7 @@ export default function PortfolioSection() {
               transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] as const }}
               className="font-serif font-light text-petroleum-dark text-4xl md:text-5xl lg:text-6xl leading-tight text-balance"
             >
-              Ambientes que definen<br className="hidden md:block" /> una forma de vivir.
+              Ambientes que definen una forma de vivir.
             </motion.h2>
           </div>
 

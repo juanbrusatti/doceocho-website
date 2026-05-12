@@ -30,7 +30,7 @@ export default function FooterSection() {
             transition={{ duration: 1, delay: 0.15, ease: [0.76, 0, 0.24, 1] as const }}
             className="font-serif font-light italic text-cream text-3xl md:text-4xl lg:text-5xl text-balance max-w-2xl"
           >
-            &ldquo;Diseñado para perdurar más allá de las tendencias.&rdquo;
+            &ldquo;Diseño en conjunto. Córdoba, Argentina.&rdquo;
           </motion.p>
         </div>
 
@@ -119,12 +119,12 @@ export default function FooterSection() {
             </p>
             <div className="flex flex-col gap-3">
               <a
-                href="https://wa.me/5493512000000"
+                href="https://wa.me/5493584178955"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-sans font-light text-cream/50 text-xs hover:text-gold transition-colors duration-300"
               >
-                +54 9 351 200-0000
+                +54 9 358 417-8955
               </a>
               <a
                 href="mailto:doce8.estudio@gmail.com"

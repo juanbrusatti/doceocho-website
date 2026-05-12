@@ -83,7 +83,7 @@ export default function HeroSection() {
               variants={lineVariant}
               className="font-serif font-light text-cream text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-[0.92] tracking-tight text-balance"
             >
-              Cada detalle
+              Donde el diseño
             </motion.h1>
           </div>
           <div className="overflow-hidden">
@@ -91,7 +91,7 @@ export default function HeroSection() {
               variants={lineVariant}
               className="font-serif font-light italic text-cream text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-[0.92] tracking-tight text-balance"
             >
-              define el resultado.
+              y la materia se encuentran.
             </motion.h1>
           </div>
         </motion.div>
@@ -105,7 +105,7 @@ export default function HeroSection() {
             className="font-sans font-light text-cream/60 text-sm md:text-base leading-relaxed max-w-md tracking-wide"
           >
             Arquitectura interior y mobiliario a medida.<br />
-            Proyectos completos. Acabados impecables.
+            Proyectos completos. Detalles que definen.
           </motion.p>
 
           <motion.div
