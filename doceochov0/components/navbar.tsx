@@ -4,16 +4,19 @@ import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 const navLinks = [
   { label: 'Estudio', href: '#estudio' },
   { label: 'Proceso', href: '#proceso' },
   { label: 'Proyectos', href: '#proyectos' },
+  { label: 'Portfolio', href: '/portfolio' },
   { label: 'Materiales', href: '#materiales' },
   { label: 'Contacto', href: '#contacto' },
 ]
 
 export default function Navbar() {
+  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -32,8 +35,15 @@ export default function Navbar() {
 
   const handleNavClick = (href: string) => {
     setMenuOpen(false)
-    const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    
+    // Check if it's an anchor link or page navigation
+    if (href.startsWith('#')) {
+      const el = document.querySelector(href)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      // Page navigation using Next.js router
+      router.push(href)
+    }
   }
 
   return (

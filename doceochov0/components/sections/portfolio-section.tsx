@@ -213,9 +213,7 @@ export default function PortfolioSection() {
           className="flex justify-center mt-16"
         >
           <a
-            href="https://wa.me/5493512000000?text=Hola%2C%20quisiera%20ver%20m%C3%A1s%20proyectos%20del%20estudio."
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/portfolio"
             className="font-sans text-[11px] tracking-[0.4em] uppercase text-petroleum-dark border border-petroleum-dark/30 px-8 py-4 hover:bg-petroleum-dark hover:text-cream transition-all duration-400 inline-flex items-center gap-4"
           >
             Ver portfolio completo
