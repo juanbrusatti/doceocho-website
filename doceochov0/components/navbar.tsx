@@ -183,7 +183,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="text-[10px] tracking-[0.4em] uppercase font-sans text-gold border border-gold/40 px-8 py-3 hover:bg-gold hover:text-petroleum-dark transition-all duration-300 flex items-center gap-2"
               aria-label="Seguir en Instagram"
-            >s
+            >
               Instagram
             </motion.a>
           </motion.div>
