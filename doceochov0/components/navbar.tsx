@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 const navLinks = [
   { label: 'Estudio', href: '#estudio' },
@@ -15,6 +16,7 @@ const navLinks = [
 ]
 
 export default function Navbar() {
+  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -39,8 +41,8 @@ export default function Navbar() {
       const el = document.querySelector(href)
       if (el) el.scrollIntoView({ behavior: 'smooth' })
     } else {
-      // Page navigation
-      window.location.href = href
+      // Page navigation using Next.js router
+      router.push(href)
     }
   }
 
