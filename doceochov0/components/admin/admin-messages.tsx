@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getContactMessages } from '@/actions/contact-messages'
-import { ChevronDown, ChevronUp, Mail, Phone, Calendar, FileText } from 'lucide-react'
+import { ChevronDown, ChevronUp, Mail, Phone, Calendar, FileText, Download, Paperclip } from 'lucide-react'
 
 interface Message {
   id: string
@@ -13,6 +13,7 @@ interface Message {
   project_type: string | null
   message: string
   created_at: string
+  file_urls: string[] | null
 }
 
 export default function AdminMessages() {
@@ -137,6 +138,31 @@ export default function AdminMessages() {
                   <div>
                     <label className="text-xs text-cream/40 uppercase tracking-wider">Tipo de Proyecto</label>
                     <p className="text-cream mt-1">{message.project_type}</p>
+                  </div>
+                )}
+                {message.file_urls && message.file_urls.length > 0 && (
+                  <div>
+                    <label className="text-xs text-cream/40 uppercase tracking-wider flex items-center gap-2">
+                      <Paperclip className="w-3 h-3" />
+                      Archivos Adjuntos
+                    </label>
+                    <div className="mt-2 space-y-2">
+                      {message.file_urls.map((url, index) => {
+                        const fileName = url.split('/').pop() || `archivo-${index + 1}`
+                        return (
+                          <a
+                            key={index}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-cream hover:text-gold transition-colors duration-300 text-sm"
+                          >
+                            <Download className="w-4 h-4" />
+                            {fileName}
+                          </a>
+                        )
+                      })}
+                    </div>
                   </div>
                 )}
                 <div>

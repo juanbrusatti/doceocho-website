@@ -11,6 +11,7 @@ const contactMessageSchema = z.object({
   phone: z.string().optional(),
   projectType: z.string().optional(),
   message: z.string().min(1, 'Message is required'),
+  fileUrls: z.array(z.string()).optional(),
 })
 
 export async function saveContactMessage(formData: {
@@ -20,6 +21,7 @@ export async function saveContactMessage(formData: {
   phone?: string
   projectType?: string
   message: string
+  fileUrls?: string[]
 }) {
   try {
     // Validate input
@@ -35,6 +37,7 @@ export async function saveContactMessage(formData: {
         phone: validatedData.phone || null,
         project_type: validatedData.projectType || null,
         message: validatedData.message,
+        file_urls: validatedData.fileUrls && validatedData.fileUrls.length > 0 ? validatedData.fileUrls : null,
       })
 
     if (error) {
@@ -66,8 +69,9 @@ export async function saveContactMessage(formData: {
 
 export async function getContactMessages() {
   try {
-    // Use service role client for admin operations (bypasses RLS)
-    const { data, error } = await supabaseAdmin
+    // Use service role client for admin operations (bypasses RLS), fallback to regular client
+    const client = supabaseAdmin || supabase
+    const { data, error } = await client
       .from('contact_messages')
       .select('*')
       .order('created_at', { ascending: false })

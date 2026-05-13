@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { saveContactMessage } from '@/actions/contact-messages'
+import { supabase } from '@/lib/supabase/client'
 
 const projectTypes = [
   'Arquitectura residencial',
@@ -27,6 +28,7 @@ export default function ContactSection() {
   })
   const [sent, setSent] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [files, setFiles] = useState<File[]>([])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -34,13 +36,46 @@ export default function ContactSection() {
     setFormState((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files))
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
     try {
-      // Save message to Supabase
-      const result = await saveContactMessage(formState)
+      // Upload files to Supabase Storage client-side
+      const fileUrls: string[] = []
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+        const filePath = `${fileName}`
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('contact-files')
+          .upload(filePath, file)
+
+        if (uploadError) {
+          console.error('Error uploading file:', uploadError)
+          continue
+        }
+
+        if (uploadData) {
+          const { data: urlData } = supabase.storage
+            .from('contact-files')
+            .getPublicUrl(filePath)
+          fileUrls.push(urlData.publicUrl)
+        }
+      }
+
+      // Save message to Supabase with file URLs
+      const result = await saveContactMessage({
+        ...formState,
+        fileUrls,
+      })
 
       if (result.success) {
         setSent(true)
@@ -53,6 +88,7 @@ export default function ContactSection() {
           projectType: '',
           message: '',
         })
+        setFiles([])
       } else {
         console.error('Failed to save message:', result.error)
         alert('Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.')
@@ -289,6 +325,37 @@ export default function ContactSection() {
                     className="bg-transparent border-b border-cream/20 focus:border-gold outline-none text-cream font-sans text-sm py-3 resize-none transition-colors duration-300 placeholder:text-cream/20"
                     placeholder="Contanos sobre tu proyecto..."
                   />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="files" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
+                    Archivos (PDF, imágenes, planos)
+                  </label>
+                  <input
+                    id="files"
+                    name="files"
+                    type="file"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('files')?.click()}
+                      className="text-gold text-sm hover:text-cream transition-colors duration-300 font-semibold"
+                    >
+                      {files.length > 0 ? 'Cambiar archivos' : 'Subir archivo'}
+                    </button>
+                    {files.length === 0 ? (
+                      <span className="text-cream/40 text-sm">Ningún archivo seleccionado</span>
+                    ) : (
+                      <span className="text-cream/60 text-sm">
+                        {files.length} {files.length === 1 ? 'archivo seleccionado' : 'archivos seleccionados'}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <button
