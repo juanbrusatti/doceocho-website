@@ -24,18 +24,18 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-petroleum-dark">
       {/* Header */}
-      <header className="border-b border-cream/10 bg-petroleum-dark/50 backdrop-blur-sm">
+      <header className="border-b border-black/10 bg-petroleum-dark/50 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <LayoutDashboard className="w-6 h-6 text-gold" />
-            <h1 className="font-serif text-2xl text-cream">Admin Dashboard</h1>
+            <h1 className="font-serif text-2xl text-cream">Panel de Administración</h1>
           </div>
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="border-cream/20 text-cream hover:bg-cream/10"
+            className="border-cream/20 text-black hover:bg-cream/10"
           >
-            Logout
+            Cerrar Sesión
           </Button>
         </div>
       </header>
@@ -43,37 +43,37 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-6 py-8">
         <div className="mb-8">
-          <h2 className="font-serif text-3xl text-cream mb-2">Welcome, Admin</h2>
-          <p className="text-cream/60">Manage your DoceOcho Studio content</p>
+          <h2 className="font-serif text-3xl text-cream mb-2">Bienvenido/a, Admin</h2>
+          <p className="text-cream/60">Gestiona el contenido de DoceOcho Studio</p>
         </div>
 
         {/* Dashboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <DashboardCard
             icon={<FileText className="w-8 h-8" />}
-            title="Projects"
-            description="Manage portfolio projects"
+            title="Proyectos"
+            description="Gestiona los proyectos del portfolio"
             count={0}
           />
           <DashboardCard
             icon={<Users className="w-8 h-8" />}
-            title="Messages"
-            description="View contact form submissions"
+            title="Mensajes"
+            description="Ver los mensajes del formulario de contacto"
             count={0}
           />
           <DashboardCard
             icon={<Settings className="w-8 h-8" />}
-            title="Settings"
-            description="Configure admin settings"
+            title="Configuración"
+            description="Configura la configuración del admin"
             count={0}
           />
         </div>
 
         {/* Recent Activity Section */}
         <div className="mt-12">
-          <h3 className="font-serif text-xl text-cream mb-4">Recent Activity</h3>
+          <h3 className="font-serif text-xl text-cream mb-4">Actividad Reciente</h3>
           <div className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6">
-            <p className="text-cream/60 text-center">No recent activity</p>
+            <p className="text-cream/60 text-center">No hay actividad reciente</p>
           </div>
         </div>
       </main>
