@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { saveContactMessage, uploadContactFiles } from '@/actions/contact-messages'
 
 const projectTypes = [
   'Arquitectura residencial',
@@ -17,13 +18,16 @@ export default function ContactSection() {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-10%' })
   const [formState, setFormState] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     projectType: '',
     message: '',
   })
   const [sent, setSent] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [files, setFiles] = useState<File[]>([])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -31,12 +35,54 @@ export default function ContactSection() {
     setFormState((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files))
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Build WhatsApp message as fallback
-    const msg = `Hola, soy ${formState.name}. Me interesa consultar sobre ${formState.projectType || 'un proyecto'}. Mi email: ${formState.email}. Teléfono: ${formState.phone}. Mensaje: ${formState.message}`
-    window.open(`https://wa.me/5493584178955?text=${encodeURIComponent(msg)}`, '_blank')
-    setSent(true)
+    setIsSubmitting(true)
+
+    try {
+      // Upload files to Supabase Storage via server action
+      const uploadResult = await uploadContactFiles(files)
+
+      if (!uploadResult.success) {
+        console.error('Failed to upload files:', uploadResult.error)
+        alert('Hubo un error al subir los archivos. Por favor, intenta nuevamente.')
+        return
+      }
+
+      // Save message to Supabase with file paths
+      const result = await saveContactMessage({
+        ...formState,
+        fileUrls: uploadResult.filePaths,
+      })
+
+      if (result.success) {
+        setSent(true)
+        // Reset form
+        setFormState({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          projectType: '',
+          message: '',
+        })
+        setFiles([])
+      } else {
+        console.error('Failed to save message:', result.error)
+        alert('Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.')
+      }
+    } catch (error) {
+      console.error('Submit error:', error)
+      alert('Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -150,47 +196,69 @@ export default function ContactSection() {
           >
             {sent ? (
               <div className="flex flex-col items-start gap-6 py-16">
-                <span className="font-serif text-gold text-6xl" aria-hidden="true">&rarr;</span>
+                <span className="font-serif text-gold text-6xl" aria-hidden="true">✓</span>
                 <h3 className="font-serif text-cream text-3xl font-light">
                   Mensaje enviado.
                 </h3>
                 <p className="font-sans font-light text-cream/50 text-base leading-relaxed">
-                  Redirigiste al chat de WhatsApp. Nos ponemos en contacto a la brevedad.
+                  Gracias por tu consulta. Nos pondremos en contacto a la brevedad.
                 </p>
+                <button
+                  onClick={() => setSent(false)}
+                  className="text-gold text-sm hover:text-cream transition-colors duration-300"
+                >
+                  Enviar otro mensaje
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label htmlFor="name" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
+                    <label htmlFor="firstName" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
                       Nombre
                     </label>
                     <input
-                      id="name"
-                      name="name"
+                      id="firstName"
+                      name="firstName"
                       type="text"
                       required
-                      value={formState.name}
+                      value={formState.firstName}
                       onChange={handleChange}
                       className="bg-transparent border-b border-cream/20 focus:border-gold outline-none text-cream font-sans text-sm py-3 transition-colors duration-300 placeholder:text-cream/20"
                       placeholder="Tu nombre"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label htmlFor="email" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
-                      Email
+                    <label htmlFor="lastName" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
+                      Apellido
                     </label>
                     <input
-                      id="email"
-                      name="email"
-                      type="email"
+                      id="lastName"
+                      name="lastName"
+                      type="text"
                       required
-                      value={formState.email}
+                      value={formState.lastName}
                       onChange={handleChange}
                       className="bg-transparent border-b border-cream/20 focus:border-gold outline-none text-cream font-sans text-sm py-3 transition-colors duration-300 placeholder:text-cream/20"
-                      placeholder="tu@email.com"
+                      placeholder="Tu apellido"
                     />
                   </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="email" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={formState.email}
+                    onChange={handleChange}
+                    className="bg-transparent border-b border-cream/20 focus:border-gold outline-none text-cream font-sans text-sm py-3 transition-colors duration-300 placeholder:text-cream/20"
+                    placeholder="tu@email.com"
+                  />
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -243,11 +311,43 @@ export default function ContactSection() {
                   />
                 </div>
 
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="files" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
+                    Archivos (PDF, imágenes, planos)
+                  </label>
+                  <input
+                    id="files"
+                    name="files"
+                    type="file"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('files')?.click()}
+                      className="text-gold text-sm hover:text-cream transition-colors duration-300 font-semibold"
+                    >
+                      {files.length > 0 ? 'Cambiar archivos' : 'Subir archivo'}
+                    </button>
+                    {files.length === 0 ? (
+                      <span className="text-cream/40 text-sm">Ningún archivo seleccionado</span>
+                    ) : (
+                      <span className="text-cream/60 text-sm">
+                        {files.length} {files.length === 1 ? 'archivo seleccionado' : 'archivos seleccionados'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 <button
                   type="submit"
-                  className="mt-4 bg-gold text-petroleum-dark font-sans text-[11px] tracking-[0.4em] uppercase py-4 px-8 hover:bg-cream transition-colors duration-300 w-full md:w-auto self-start"
+                  disabled={isSubmitting}
+                  className="mt-4 bg-gold text-petroleum-dark font-sans text-[11px] tracking-[0.4em] uppercase py-4 px-8 hover:bg-cream transition-colors duration-300 w-full md:w-auto self-start disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Enviar consulta
+                  {isSubmitting ? 'Enviando...' : 'Enviar consulta'}
                 </button>
               </form>
             )}

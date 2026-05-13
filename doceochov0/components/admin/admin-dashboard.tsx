@@ -3,10 +3,36 @@
 import { Button } from '@/components/ui/button'
 import { logoutAdmin } from '@/actions/admin-auth'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard, Settings, Users, FileText } from 'lucide-react'
+import { LayoutDashboard, Settings, Users, FileText, MessageSquare } from 'lucide-react'
+import AdminMessages from '@/components/admin/admin-messages'
+import { getContactMessages } from '@/actions/contact-messages'
+import { useEffect, useState } from 'react'
 
 export default function AdminDashboard() {
   const router = useRouter()
+  const [messageCount, setMessageCount] = useState(0)
+  const [countError, setCountError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchMessageCount() {
+      try {
+        const result = await getContactMessages()
+        if (result.success) {
+          setMessageCount(result.messages.length)
+          setCountError(null)
+        } else {
+          const errorMsg = `Failed to fetch message count: ${result.error}`
+          console.error(errorMsg)
+          setCountError(errorMsg)
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred'
+        console.error('Error fetching message count:', error)
+        setCountError(`Error: ${errorMsg}`)
+      }
+    }
+    fetchMessageCount()
+  }, [])
 
   const handleLogout = async () => {
     try {
@@ -58,8 +84,8 @@ export default function AdminDashboard() {
           <DashboardCard
             icon={<Users className="w-8 h-8" />}
             title="Mensajes"
-            description="Ver los mensajes del formulario de contacto"
-            count={0}
+            description={countError || "Ver los mensajes del formulario de contacto"}
+            count={messageCount}
           />
           <DashboardCard
             icon={<Settings className="w-8 h-8" />}
@@ -69,12 +95,10 @@ export default function AdminDashboard() {
           />
         </div>
 
-        {/* Recent Activity Section */}
+        {/* Messages Section */}
         <div className="mt-12">
-          <h3 className="font-serif text-xl text-cream mb-4">Actividad Reciente</h3>
-          <div className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6">
-            <p className="text-cream/60 text-center">No hay actividad reciente</p>
-          </div>
+          <h3 className="font-serif text-xl text-cream mb-4">Mensajes Recibidos</h3>
+          <AdminMessages />
         </div>
       </main>
     </div>
