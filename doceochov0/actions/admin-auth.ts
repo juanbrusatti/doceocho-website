@@ -9,15 +9,27 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-const SECRET_KEY = new TextEncoder().encode(process.env.ADMIN_SESSION_SECRET || 'your-secret-key-change-this-in-production')
+const SECRET_KEY = new TextEncoder().encode(
+  process.env.ADMIN_SESSION_SECRET || (() => {
+    throw new Error('ADMIN_SESSION_SECRET environment variable is not set. Please set it in your .env.local file.')
+  })()
+)
+
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || (() => {
+  throw new Error('ADMIN_USERNAME environment variable is not set. Please set it in your .env.local file.')
+})()
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (() => {
+  throw new Error('ADMIN_PASSWORD environment variable is not set. Please set it in your .env.local file.')
+})()
 
 export async function loginAdmin(formData: { username: string; password: string }) {
   try {
     // Validate input
     const { username, password } = loginSchema.parse(formData)
 
-    // Validate against hardcoded credentials
-    if (username !== 'doceocho' || password !== 'DoceOcho12/8') {
+    // Validate against environment variable credentials
+    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
       return {
         success: false,
         error: 'Invalid credentials',
@@ -52,9 +64,12 @@ export async function loginAdmin(formData: { username: string; password: string 
       }
     }
 
+    // Log error for debugging while keeping user message safe
+    console.error('Admin login error:', error)
+
     return {
       success: false,
-      error: 'An error occurred',
+      error: 'An error occurred during login',
     }
   }
 }

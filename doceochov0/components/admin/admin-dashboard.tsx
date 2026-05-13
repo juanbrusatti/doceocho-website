@@ -9,9 +9,16 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   const handleLogout = async () => {
-    await logoutAdmin()
-    router.push('/admin/login')
-    router.refresh()
+    try {
+      await logoutAdmin()
+      router.push('/admin/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Still redirect even if logout fails to ensure user leaves protected area
+      router.push('/admin/login')
+      router.refresh()
+    }
   }
 
   return (
