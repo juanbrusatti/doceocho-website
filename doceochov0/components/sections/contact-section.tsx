@@ -2,8 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { saveContactMessage } from '@/actions/contact-messages'
-import { supabase } from '@/lib/supabase/client'
+import { saveContactMessage, uploadContactFiles } from '@/actions/contact-messages'
 
 const projectTypes = [
   'Arquitectura residencial',
@@ -47,34 +46,19 @@ export default function ContactSection() {
     setIsSubmitting(true)
 
     try {
-      // Upload files to Supabase Storage client-side
-      const fileUrls: string[] = []
-      for (const file of files) {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-        const filePath = `${fileName}`
+      // Upload files to Supabase Storage via server action
+      const uploadResult = await uploadContactFiles(files)
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('contact-files')
-          .upload(filePath, file)
-
-        if (uploadError) {
-          console.error('Error uploading file:', uploadError)
-          continue
-        }
-
-        if (uploadData) {
-          const { data: urlData } = supabase.storage
-            .from('contact-files')
-            .getPublicUrl(filePath)
-          fileUrls.push(urlData.publicUrl)
-        }
+      if (!uploadResult.success) {
+        console.error('Failed to upload files:', uploadResult.error)
+        alert('Hubo un error al subir los archivos. Por favor, intenta nuevamente.')
+        return
       }
 
-      // Save message to Supabase with file URLs
+      // Save message to Supabase with file paths
       const result = await saveContactMessage({
         ...formState,
-        fileUrls,
+        fileUrls: uploadResult.filePaths,
       })
 
       if (result.success) {

@@ -11,12 +11,24 @@ import { useEffect, useState } from 'react'
 export default function AdminDashboard() {
   const router = useRouter()
   const [messageCount, setMessageCount] = useState(0)
+  const [countError, setCountError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchMessageCount() {
-      const result = await getContactMessages()
-      if (result.success) {
-        setMessageCount(result.messages.length)
+      try {
+        const result = await getContactMessages()
+        if (result.success) {
+          setMessageCount(result.messages.length)
+          setCountError(null)
+        } else {
+          const errorMsg = `Failed to fetch message count: ${result.error}`
+          console.error(errorMsg)
+          setCountError(errorMsg)
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred'
+        console.error('Error fetching message count:', error)
+        setCountError(`Error: ${errorMsg}`)
       }
     }
     fetchMessageCount()
@@ -72,7 +84,7 @@ export default function AdminDashboard() {
           <DashboardCard
             icon={<Users className="w-8 h-8" />}
             title="Mensajes"
-            description="Ver los mensajes del formulario de contacto"
+            description={countError || "Ver los mensajes del formulario de contacto"}
             count={messageCount}
           />
           <DashboardCard

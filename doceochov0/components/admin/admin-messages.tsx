@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getContactMessages } from '@/actions/contact-messages'
+import { getContactMessages, getSignedFileUrl } from '@/actions/contact-messages'
 import { ChevronDown, ChevronUp, Mail, Phone, Calendar, FileText, Download, Paperclip } from 'lucide-react'
 
 interface Message {
@@ -21,6 +21,7 @@ export default function AdminMessages() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
 
   useEffect(() => {
     async function fetchMessages() {
@@ -50,6 +51,20 @@ export default function AdminMessages() {
       hour: '2-digit',
       minute: '2-digit',
     })
+  }
+
+  const handleGetSignedUrl = async (filePath: string) => {
+    // Check if we already have a signed URL for this file
+    if (signedUrls[filePath]) {
+      return signedUrls[filePath]
+    }
+
+    const result = await getSignedFileUrl(filePath)
+    if (result.success && result.signedUrl) {
+      setSignedUrls((prev) => ({ ...prev, [filePath]: result.signedUrl! }))
+      return result.signedUrl
+    }
+    return null
   }
 
   if (loading) {
@@ -86,6 +101,7 @@ export default function AdminMessages() {
           <button
             onClick={() => setExpandedId(expandedId === message.id ? null : message.id)}
             className="w-full p-6 flex items-center justify-between text-left"
+            aria-expanded={expandedId === message.id}
           >
             <div className="flex items-center gap-4 flex-1">
               <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center">
@@ -147,19 +163,25 @@ export default function AdminMessages() {
                       Archivos Adjuntos
                     </label>
                     <div className="mt-2 space-y-2">
-                      {message.file_urls.map((url, index) => {
-                        const fileName = url.split('/').pop() || `archivo-${index + 1}`
+                      {message.file_urls.map((filePath, index) => {
+                        const fileName = filePath.split('/').pop() || `archivo-${index + 1}`
+                        const signedUrl = signedUrls[filePath]
                         return (
-                          <a
+                          <button
                             key={index}
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-cream hover:text-gold transition-colors duration-300 text-sm"
+                            onClick={async () => {
+                              const url = await handleGetSignedUrl(filePath)
+                              if (url) {
+                                window.open(url, '_blank', 'noopener,noreferrer')
+                              } else {
+                                alert('Error al generar enlace de descarga')
+                              }
+                            }}
+                            className="flex items-center gap-2 text-cream hover:text-gold transition-colors duration-300 text-sm text-left"
                           >
                             <Download className="w-4 h-4" />
                             {fileName}
-                          </a>
+                          </button>
                         )
                       })}
                     </div>
