@@ -1,69 +1,65 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
+import { getProjects } from '@/actions/projects'
 
 const categories = ['Todos', 'Residencial', 'Comercial', 'Mobiliario']
 
-const projects = [
-  {
-    id: 1,
-    title: 'Casa Olivos',
-    category: 'Residencial',
-    description: 'Proyecto residencial integral — Living, cocina y dormitorios en roble americano y microcemento.',
-    image: '/images/project-residential-01.jpg',
-    year: '2024',
-    size: 'large',
-  },
-  {
-    id: 2,
-    title: 'Suite Nórdica',
-    category: 'Residencial',
-    description: 'Vestidor y habitación principal. Carpintería en melamina soft-touch con tirador embutido.',
-    image: '/images/project-dressing-01.jpg',
-    year: '2024',
-    size: 'small',
-  },
-  {
-    id: 3,
-    title: 'Estudio Jurídico Norte',
-    category: 'Comercial',
-    description: 'Reforma integral de oficinas. Panelería mural, biblioteca integrada y mobiliario de dirección.',
-    image: '/images/project-commercial-01.jpg',
-    year: '2023',
-    size: 'small',
-  },
-  {
-    id: 4,
-    title: 'Cocina Belgrano',
-    category: 'Mobiliario',
-    description: 'Cocina a medida en poliuretano mate con cubierta de cuarzo. Diseño ergonómico y almacenamiento inteligente.',
-    image: '/images/project-kitchen-01.jpg',
-    year: '2023',
-    size: 'large',
-  },
-  {
-    id: 5,
-    title: 'Biblioteca Privada',
-    category: 'Mobiliario',
-    description: 'Biblioteca de piso a techo en cedro natural con escalera de biblioteca integrada.',
-    image: '/images/project-library-01.jpg',
-    year: '2023',
-    size: 'small',
-  },
-]
+interface Project {
+  id: string
+  title: string
+  category: 'Residencial' | 'Comercial' | 'Mobiliario'
+  description: string
+  image_path: string
+  year: string
+  size: 'large' | 'small'
+}
 
 export default function PortfolioSection() {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-10%' })
   const [activeCategory, setActiveCategory] = useState('Todos')
-  const [hoveredProject, setHoveredProject] = useState<number | null>(null)
+  const [hoveredProject, setHoveredProject] = useState<string | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const result = await getProjects()
+        if (result.success) {
+          setProjects(result.projects)
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
 
   const filtered =
     activeCategory === 'Todos'
       ? projects
       : projects.filter((p) => p.category === activeCategory)
+
+  if (loading) {
+    return (
+      <section
+        id="proyectos"
+        ref={ref}
+        className="bg-cream py-28 md:py-40 px-6 md:px-10 lg:px-16"
+        aria-labelledby="portfolio-heading"
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-center">
+          <div className="text-petroleum-dark/60">Cargando proyectos...</div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section
@@ -157,7 +153,7 @@ export default function PortfolioSection() {
                   }`}
                 >
                   <Image
-                    src={project.image}
+                    src={project.image_path}
                     alt={project.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
