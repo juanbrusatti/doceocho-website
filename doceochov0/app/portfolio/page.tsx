@@ -1,96 +1,144 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-
-// Mock project data - will be replaced with real projects in future
-const projects = [
-  {
-    id: 1,
-    title: 'Casa Olivos',
-    image: '/images/project-residential-01.jpg',
-    category: 'residencial'
-  },
-  {
-    id: 2,
-    title: 'Suite Nórdica',
-    image: '/images/project-dressing-01.jpg',
-    category: 'residencial'
-  },
-  {
-    id: 3,
-    title: 'Estudio Jurídico Norte',
-    image: '/images/project-commercial-01.jpg',
-    category: 'comercial'
-  },
-  {
-    id: 4,
-    title: 'Cocina Belgrano',
-    image: '/images/project-kitchen-01.jpg',
-    category: 'mobiliario'
-  },
-  {
-    id: 5,
-    title: 'Biblioteca Privada',
-    image: '/images/project-library-01.jpg',
-    category: 'mobiliario'
-  },
-  {
-    id: 6,
-    title: 'Living Moderno',
-    image: '/images/project-residential-01.jpg',
-    category: 'residencial'
-  },
-  {
-    id: 7,
-    title: 'Oficina Ejecutiva',
-    image: '/images/project-commercial-01.jpg',
-    category: 'comercial'
-  },
-  {
-    id: 8,
-    title: 'Vestidor Minimalista',
-    image: '/images/project-dressing-01.jpg',
-    category: 'mobiliario'
-  },
-  {
-    id: 9,
-    title: 'Cocina Integral',
-    image: '/images/project-kitchen-01.jpg',
-    category: 'mobiliario'
-  },
-  {
-    id: 10,
-    title: 'Suite Principal',
-    image: '/images/project-residential-01.jpg',
-    category: 'residencial'
-  },
-  {
-    id: 11,
-    title: 'Espacio Comercial',
-    image: '/images/project-commercial-01.jpg',
-    category: 'comercial'
-  },
-  {
-    id: 12,
-    title: 'Biblioteca Contemporánea',
-    image: '/images/project-library-01.jpg',
-    category: 'mobiliario'
-  }
-]
+import { X } from 'lucide-react'
+import { getPortfolioProjects } from '@/actions/portfolio-images'
+import type { PortfolioProjectWithImages } from '@/types/portfolio'
 
 const categories = ['Todos', 'Residencial', 'Comercial', 'Mobiliario']
 
 export default function PortfolioPage() {
   const [selectedCategory, setSelectedCategory] = useState('Todos')
-  const [hoveredProject, setHoveredProject] = useState<number | null>(null)
+  const [hoveredProject, setHoveredProject] = useState<string | null>(null)
+  const [projects, setProjects] = useState<PortfolioProjectWithImages[]>([])
+  const [loading, setLoading] = useState(true)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxImages, setLightboxImages] = useState<string[]>([])
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+  const [carouselStates, setCarouselStates] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const result = await getPortfolioProjects()
+        if (result.success) {
+          setProjects(result.projects)
+        }
+      } catch (error) {
+        console.error('Error fetching portfolio projects:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
   
   const filteredProjects = selectedCategory === 'Todos' 
     ? projects 
     : projects.filter(project => 
-        project.category.toLowerCase() === selectedCategory.toLowerCase()
+        project.category === selectedCategory
       )
+
+  const handleImageClick = (images: string[], index: number) => {
+    setLightboxImages(images)
+    setLightboxIndex(index)
+    setLightboxOpen(true)
+  }
+
+  const closeLightbox = () => {
+    setLightboxOpen(false)
+    setLightboxImages([])
+    setLightboxIndex(0)
+  }
+
+  const handleCarouselChange = (projectId: string, newIndex: number) => {
+    setCarouselStates(prev => ({ ...prev, [projectId]: newIndex }))
+  }
+
+  // Simple carousel component
+  const ProjectCarousel = ({ images, title, projectId }: { images: string[], title: string | null, projectId: string }) => {
+    const currentIndex = carouselStates[projectId] || 0
+    
+    if (images.length === 0) return null
+    
+    if (images.length === 1) {
+      return (
+        <div className="relative aspect-[4/5]">
+          <Image
+            src={images[0]}
+            alt={title || 'Portfolio project'}
+            fill
+            className="object-cover cursor-pointer transition-transform duration-700 hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            onClick={() => handleImageClick(images, 0)}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="relative aspect-[4/5] group">
+        <Image
+          src={images[currentIndex]}
+          alt={`${title} - Image ${currentIndex + 1}`}
+          fill
+          className="object-cover cursor-pointer transition-transform duration-700 hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          onClick={() => handleImageClick(images, currentIndex)}
+        />
+        
+        {/* Navigation arrows */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleCarouselChange(projectId, currentIndex === 0 ? images.length - 1 : currentIndex - 1)
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/70"
+            >
+              ←
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                handleCarouselChange(projectId, currentIndex === images.length - 1 ? 0 : currentIndex + 1)
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/70"
+            >
+              →
+            </button>
+            
+            {/* Dots indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              {images.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleCarouselChange(projectId, idx)
+                  }}
+                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                    idx === currentIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-petroleum-dark/60">Cargando portfolio...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-cream">
@@ -179,21 +227,18 @@ export default function PortfolioPage() {
                   role="button"
                   aria-label={`Ver proyecto: ${project.title}`}
                 >
-                  {/* Image */}
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
+                  {/* Carousel */}
+                  <ProjectCarousel 
+                    images={project.images.map(img => img.image_path)}
+                    title={project.title}
+                    projectId={project.id}
+                  />
                     
                     {/* Overlay - visible by default on mobile, enhanced on hover on desktop */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-petroleum-dark/60 via-petroleum-dark/20 to-transparent md:bg-petroleum-dark/0 md:group-hover:bg-petroleum-dark/40 transition-colors duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-petroleum-dark/60 via-petroleum-dark/20 to-transparent md:bg-petroleum-dark/0 md:group-hover:bg-petroleum-dark/40 transition-colors duration-500 pointer-events-none" />
                     
                     {/* Project info - visible by default on mobile, enhanced on hover on desktop */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-cream">
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-cream pointer-events-none">
                       <motion.div
                         initial={{ opacity: 1, y: 0 }}
                         animate={{
@@ -226,7 +271,6 @@ export default function PortfolioPage() {
                         </p>
                       </motion.div>
                     </div>
-                  </div>
                 </motion.article>
               ))}
             </AnimatePresence>
@@ -246,6 +290,69 @@ export default function PortfolioPage() {
           )}
         </div>
       </section>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxOpen && lightboxImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeLightbox}
+            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 cursor-pointer"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="relative max-w-7xl max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={lightboxImages[lightboxIndex]}
+                alt={`Full size image ${lightboxIndex + 1}`}
+                className="max-w-full max-h-[90vh] object-contain"
+              />
+              
+              {/* Navigation arrows for multiple images */}
+              {lightboxImages.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setLightboxIndex(prev => prev === 0 ? lightboxImages.length - 1 : prev - 1)
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-colors duration-300"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setLightboxIndex(prev => prev === lightboxImages.length - 1 ? 0 : prev + 1)
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 rounded-full p-3 transition-colors duration-300"
+                  >
+                    →
+                  </button>
+                  
+                  {/* Image counter */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+                    {lightboxIndex + 1} / {lightboxImages.length}
+                  </div>
+                </>
+              )}
+              
+              <button
+                onClick={closeLightbox}
+                className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors duration-300"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

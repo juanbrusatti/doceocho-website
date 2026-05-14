@@ -3,12 +3,15 @@
 import { Button } from '@/components/ui/button'
 import { logoutAdmin } from '@/actions/admin-auth'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard, Settings, Users, FileText, MessageSquare, ArrowLeft } from 'lucide-react'
+import { LayoutDashboard, Settings, Users, FileText, MessageSquare, ArrowLeft, Image as ImageIcon } from 'lucide-react'
 import AdminMessages from '@/components/admin/admin-messages'
 import AdminProjects from '@/components/admin/admin-projects'
 import AdminProjectForm from '@/components/admin/admin-project-form'
+import AdminPortfolioImages from '@/components/admin/admin-portfolio-images'
+import AdminPortfolioImageForm from '@/components/admin/admin-portfolio-image-form'
 import { getContactMessages } from '@/actions/contact-messages'
 import { getProjects } from '@/actions/projects'
+import { getPortfolioProjects } from '@/actions/portfolio-images'
 import { useEffect, useState } from 'react'
 
 export default function AdminDashboard() {
@@ -16,8 +19,10 @@ export default function AdminDashboard() {
   const [messageCount, setMessageCount] = useState(0)
   const [countError, setCountError] = useState<string | null>(null)
   const [projectCount, setProjectCount] = useState(0)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'messages'>('dashboard')
+  const [portfolioImageCount, setPortfolioImageCount] = useState(0)
+  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages'>('dashboard')
   const [editingProject, setEditingProject] = useState<any>(null)
+  const [editingPortfolioImage, setEditingPortfolioImage] = useState<any>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   const fetchProjectCount = async () => {
@@ -28,6 +33,17 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error fetching project count:', error)
+    }
+  }
+
+  const fetchPortfolioImageCount = async () => {
+    try {
+      const result = await getPortfolioProjects()
+      if (result.success) {
+        setPortfolioImageCount(result.projects.length)
+      }
+    } catch (error) {
+      console.error('Error fetching portfolio project count:', error)
     }
   }
 
@@ -56,6 +72,10 @@ export default function AdminDashboard() {
     fetchProjectCount()
   }, [])
 
+  useEffect(() => {
+    fetchPortfolioImageCount()
+  }, [])
+
   const handleLogout = async () => {
     try {
       await logoutAdmin()
@@ -81,13 +101,29 @@ export default function AdminDashboard() {
 
   const handleFormClose = () => {
     setEditingProject(null)
+    setEditingPortfolioImage(null)
     setIsFormOpen(false)
   }
 
   const handleFormSuccess = () => {
     setEditingProject(null)
+    setEditingPortfolioImage(null)
     setIsFormOpen(false)
-    fetchProjectCount()
+    if (currentView === 'projects') {
+      fetchProjectCount()
+    } else if (currentView === 'portfolio') {
+      fetchPortfolioImageCount()
+    }
+  }
+
+  const handleCreatePortfolioImage = () => {
+    setEditingPortfolioImage(null)
+    setIsFormOpen(true)
+  }
+
+  const handleEditPortfolioImage = (image: any) => {
+    setEditingPortfolioImage(image)
+    setIsFormOpen(true)
   }
 
   return (
@@ -106,7 +142,7 @@ export default function AdminDashboard() {
             )}
             <LayoutDashboard className="w-6 h-6 text-gold" />
             <h1 className="font-serif text-2xl text-cream">
-              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'messages' ? 'Mensajes' : 'Panel de Administración'}
+              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'portfolio' ? 'Gestión de Portfolio' : currentView === 'messages' ? 'Mensajes' : 'Panel de Administración'}
             </h1>
           </div>
           <Button
@@ -129,7 +165,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Dashboard Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <button
                 onClick={() => setCurrentView('projects')}
                 className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6 hover:border-gold/40 transition-colors duration-300 text-left"
@@ -140,6 +176,17 @@ export default function AdminDashboard() {
                 </div>
                 <h3 className="font-serif text-lg text-cream mb-2">Proyectos</h3>
                 <p className="text-cream/60 text-sm">Gestiona los proyectos del portfolio</p>
+              </button>
+              <button
+                onClick={() => setCurrentView('portfolio')}
+                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6 hover:border-gold/40 transition-colors duration-300 text-left"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-gold"><ImageIcon className="w-8 h-8" /></div>
+                  <span className="text-2xl font-serif text-cream">{portfolioImageCount}</span>
+                </div>
+                <h3 className="font-serif text-lg text-cream mb-2">Portfolio</h3>
+                <p className="text-cream/60 text-sm">Gestiona las imágenes del portfolio</p>
               </button>
               <button
                 onClick={() => setCurrentView('messages')}
@@ -179,6 +226,24 @@ export default function AdminDashboard() {
             {isFormOpen && (
               <AdminProjectForm
                 project={editingProject}
+                onClose={handleFormClose}
+                onSuccess={handleFormSuccess}
+              />
+            )}
+          </div>
+        )}
+
+        {currentView === 'portfolio' && (
+          <div>
+            <AdminPortfolioImages
+              onEditImage={handleEditPortfolioImage}
+              onCreateImage={handleCreatePortfolioImage}
+              onImageDeleted={fetchPortfolioImageCount}
+              isFormOpen={isFormOpen}
+            />
+            {isFormOpen && (
+              <AdminPortfolioImageForm
+                image={editingPortfolioImage}
                 onClose={handleFormClose}
                 onSuccess={handleFormSuccess}
               />
