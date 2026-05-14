@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { X, Upload, Image as ImageIcon, Plus } from 'lucide-react'
-import { createPortfolioProject, updatePortfolioProject, addProjectImages } from '@/actions/portfolio-images'
+import { createPortfolioProject, updatePortfolioProject, addProjectImages, deleteProjectImage } from '@/actions/portfolio-images'
 import type { PortfolioProjectWithImages } from '@/types/portfolio'
 
 interface AdminPortfolioImageFormProps {
@@ -16,7 +16,10 @@ export default function AdminPortfolioImageForm({ image, onClose, onSuccess }: A
   const [error, setError] = useState<string | null>(null)
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [imageIds, setImageIds] = useState<string[]>([]) // Track IDs of existing images
+  const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]) // Track IDs of images marked for deletion
   const objectUrlRefs = useRef<string[]>([])
+  const objectUrlIndices = useRef<Set<number>>(new Set()) // Track which indices are object URLs
 
   const [formData, setFormData] = useState({
     title: '',
@@ -30,6 +33,11 @@ export default function AdminPortfolioImageForm({ image, onClose, onSuccess }: A
         category: image.category,
       })
       setImagePreviews(image.images.map(img => img.image_path))
+      setImageIds(image.images.map(img => img.id))
+      // Reset object URL tracking when editing existing project
+      objectUrlRefs.current = []
+      objectUrlIndices.current = new Set()
+      setDeletedImageIds([])
     }
   }, [image])
 
@@ -53,6 +61,12 @@ export default function AdminPortfolioImageForm({ image, onClose, onSuccess }: A
         return preview
       })
 
+      // Track the indices of new object URLs
+      const startIndex = imagePreviews.length
+      newPreviews.forEach((_, idx) => {
+        objectUrlIndices.current.add(startIndex + idx)
+      })
+
       // Append to existing files and previews
       setImageFiles(prev => [...prev, ...newFiles])
       setImagePreviews(prev => [...prev, ...newPreviews])
@@ -60,15 +74,46 @@ export default function AdminPortfolioImageForm({ image, onClose, onSuccess }: A
   }
 
   const handleRemoveImage = (index: number) => {
-    setImageFiles(prev => prev.filter((_, i) => i !== index))
-    setImagePreviews(prev => prev.filter((_, i) => i !== index))
-    
-    // Revoke the object URL for the removed image
-    const removedUrl = objectUrlRefs.current[index]
-    if (removedUrl) {
-      URL.revokeObjectURL(removedUrl)
-      objectUrlRefs.current.splice(index, 1)
+    // Check if this is an existing image (has an ID)
+    const imageId = imageIds[index]
+    if (imageId) {
+      // Mark existing image for deletion
+      setDeletedImageIds(prev => [...prev, imageId])
+    } else {
+      // Only revoke if this is an object URL (newly selected file)
+      if (objectUrlIndices.current.has(index)) {
+        const removedUrl = imagePreviews[index]
+        if (removedUrl) {
+          URL.revokeObjectURL(removedUrl)
+          // Remove from refs array
+          const refIndex = objectUrlRefs.current.indexOf(removedUrl)
+          if (refIndex > -1) {
+            objectUrlRefs.current.splice(refIndex, 1)
+          }
+        }
+        objectUrlIndices.current.delete(index)
+      }
     }
+
+    // Update state to remove the image
+    setImageFiles(prev => {
+      // Calculate how many new files were before this index
+      const newFileCount = imagePreviews.slice(0, index).filter((_, i) => objectUrlIndices.current.has(i)).length
+      return prev.filter((_, i) => i !== index - (index - newFileCount))
+    })
+    setImagePreviews(prev => prev.filter((_, i) => i !== index))
+    setImageIds(prev => prev.filter((_, i) => i !== index))
+    
+    // Update objectUrlIndices - shift all indices after the removed one
+    const newIndices = new Set<number>()
+    objectUrlIndices.current.forEach(idx => {
+      if (idx < index) {
+        newIndices.add(idx)
+      } else if (idx > index) {
+        newIndices.add(idx - 1)
+      }
+    })
+    objectUrlIndices.current = newIndices
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,6 +129,16 @@ export default function AdminPortfolioImageForm({ image, onClose, onSuccess }: A
           setError(result.error || 'Failed to update project')
           setIsSubmitting(false)
           return
+        }
+
+        // Delete marked images from backend
+        for (const imageId of deletedImageIds) {
+          const deleteResult = await deleteProjectImage(imageId)
+          if (!deleteResult.success) {
+            setError(deleteResult.error || 'Failed to delete image')
+            setIsSubmitting(false)
+            return
+          }
         }
 
         // Add new images if provided

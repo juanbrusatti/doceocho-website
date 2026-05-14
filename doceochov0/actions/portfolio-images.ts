@@ -6,11 +6,6 @@ import { supabaseAdmin } from '@/lib/supabase/client'
 import { getAdminSession } from '@/actions/admin-auth'
 import type { PortfolioProjectWithImages } from '@/types/portfolio'
 
-const portfolioProjectSchema = z.object({
-  title: z.string().optional(),
-  category: z.enum(['Residencial', 'Comercial', 'Mobiliario']),
-})
-
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
@@ -29,6 +24,17 @@ const imageFileSchema = z.custom<File>((file) => {
 
   return true
 }, 'Invalid file: must be an image (JPEG, PNG, WebP, GIF) under 10MB')
+
+const portfolioProjectSchema = z.object({
+  title: z.string().nullable().optional(),
+  category: z.enum(['Residencial', 'Comercial', 'Mobiliario']),
+  imageFiles: z.array(imageFileSchema).min(1, 'At least one image is required'),
+})
+
+const portfolioProjectUpdateSchema = z.object({
+  title: z.string().nullable().optional(),
+  category: z.enum(['Residencial', 'Comercial', 'Mobiliario']),
+})
 
 export async function getPortfolioProjects() {
   try {
@@ -179,7 +185,8 @@ export async function createPortfolioProject(formData: {
       }
     }
 
-    // Upload all images
+    // Upload all images and track paths for cleanup
+    const uploadedFilePaths: string[] = []
     const uploadPromises = formData.imageFiles.map(async (file, index) => {
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
@@ -195,6 +202,9 @@ export async function createPortfolioProject(formData: {
       if (uploadError) {
         throw new Error(`Failed to upload image ${index + 1}`)
       }
+
+      // Track uploaded file path for cleanup
+      uploadedFilePaths.push(filePath)
 
       const { data: urlData } = supabaseAdmin!.storage
         .from('portfolio-images')
@@ -220,8 +230,21 @@ export async function createPortfolioProject(formData: {
       await Promise.all(uploadPromises)
     } catch (error) {
       console.error('Error uploading images:', error)
-      // Delete project if any image upload fails
+      
+      // Clean up uploaded files from storage
+      for (const filePath of uploadedFilePaths) {
+        try {
+          await supabaseAdmin!.storage
+            .from('portfolio-images')
+            .remove([filePath])
+        } catch (cleanupError) {
+          console.error('Error cleaning up uploaded file:', filePath, cleanupError)
+        }
+      }
+      
+      // Delete project
       await supabaseAdmin!.from('portfolio_projects').delete().eq('id', project.id)
+      
       return {
         success: false,
         error: 'Failed to upload images',
@@ -276,7 +299,7 @@ export async function updatePortfolioProject(
       }
     }
 
-    const validatedData = portfolioProjectSchema.parse(formData)
+    const validatedData = portfolioProjectUpdateSchema.parse(formData)
 
     const { error } = await supabaseAdmin
       .from('portfolio_projects')
@@ -355,7 +378,8 @@ export async function addProjectImages(
 
     const startIndex = currentImages && currentImages.length > 0 ? currentImages[0].order_index + 1 : 0
 
-    // Upload all images
+    // Upload all images and track paths for cleanup
+    const uploadedFilePaths: string[] = []
     const uploadPromises = imageFiles.map(async (file, index) => {
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
@@ -371,6 +395,9 @@ export async function addProjectImages(
       if (uploadError) {
         throw new Error(`Failed to upload image ${index + 1}`)
       }
+
+      // Track uploaded file path for cleanup
+      uploadedFilePaths.push(filePath)
 
       const { data: urlData } = supabaseAdmin!.storage
         .from('portfolio-images')
@@ -396,6 +423,18 @@ export async function addProjectImages(
       await Promise.all(uploadPromises)
     } catch (error) {
       console.error('Error uploading images:', error)
+      
+      // Clean up uploaded files from storage
+      for (const filePath of uploadedFilePaths) {
+        try {
+          await supabaseAdmin!.storage
+            .from('portfolio-images')
+            .remove([filePath])
+        } catch (cleanupError) {
+          console.error('Error cleaning up uploaded file:', filePath, cleanupError)
+        }
+      }
+      
       return {
         success: false,
         error: 'Failed to upload images',
