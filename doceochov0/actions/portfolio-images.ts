@@ -185,7 +185,7 @@ export async function createPortfolioProject(formData: {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
       const filePath = `${fileName}`
 
-      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      const { data: uploadData, error: uploadError } = await supabaseAdmin!.storage
         .from('portfolio-images')
         .upload(filePath, file, {
           contentType: file.type,
@@ -196,12 +196,12 @@ export async function createPortfolioProject(formData: {
         throw new Error(`Failed to upload image ${index + 1}`)
       }
 
-      const { data: urlData } = supabaseAdmin.storage
+      const { data: urlData } = supabaseAdmin!.storage
         .from('portfolio-images')
         .getPublicUrl(filePath)
 
       // Insert image record
-      const { error: imageInsertError } = await supabaseAdmin
+      const { error: imageInsertError } = await supabaseAdmin!
         .from('portfolio_project_images')
         .insert({
           project_id: project.id,
@@ -221,7 +221,7 @@ export async function createPortfolioProject(formData: {
     } catch (error) {
       console.error('Error uploading images:', error)
       // Delete project if any image upload fails
-      await supabaseAdmin.from('portfolio_projects').delete().eq('id', project.id)
+      await supabaseAdmin!.from('portfolio_projects').delete().eq('id', project.id)
       return {
         success: false,
         error: 'Failed to upload images',
@@ -361,7 +361,7 @@ export async function addProjectImages(
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
       const filePath = `${fileName}`
 
-      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      const { data: uploadData, error: uploadError } = await supabaseAdmin!.storage
         .from('portfolio-images')
         .upload(filePath, file, {
           contentType: file.type,
@@ -372,12 +372,12 @@ export async function addProjectImages(
         throw new Error(`Failed to upload image ${index + 1}`)
       }
 
-      const { data: urlData } = supabaseAdmin.storage
+      const { data: urlData } = supabaseAdmin!.storage
         .from('portfolio-images')
         .getPublicUrl(filePath)
 
       // Insert image record
-      const { error: imageInsertError } = await supabaseAdmin
+      const { error: imageInsertError } = await supabaseAdmin!
         .from('portfolio_project_images')
         .insert({
           project_id: projectId,
