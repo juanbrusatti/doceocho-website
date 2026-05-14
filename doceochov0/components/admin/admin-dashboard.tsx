@@ -20,6 +20,17 @@ export default function AdminDashboard() {
   const [editingProject, setEditingProject] = useState<any>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
+  const fetchProjectCount = async () => {
+    try {
+      const result = await getProjects()
+      if (result.success) {
+        setProjectCount(result.projects.length)
+      }
+    } catch (error) {
+      console.error('Error fetching project count:', error)
+    }
+  }
+
   useEffect(() => {
     async function fetchMessageCount() {
       try {
@@ -42,16 +53,6 @@ export default function AdminDashboard() {
   }, [])
 
   useEffect(() => {
-    async function fetchProjectCount() {
-      try {
-        const result = await getProjects()
-        if (result.success) {
-          setProjectCount(result.projects.length)
-        }
-      } catch (error) {
-        console.error('Error fetching project count:', error)
-      }
-    }
     fetchProjectCount()
   }, [])
 
@@ -86,17 +87,6 @@ export default function AdminDashboard() {
   const handleFormSuccess = () => {
     setEditingProject(null)
     setIsFormOpen(false)
-    // Refresh project count
-    async function fetchProjectCount() {
-      try {
-        const result = await getProjects()
-        if (result.success) {
-          setProjectCount(result.projects.length)
-        }
-      } catch (error) {
-        console.error('Error fetching project count:', error)
-      }
-    }
     fetchProjectCount()
   }
 
@@ -183,6 +173,7 @@ export default function AdminDashboard() {
             <AdminProjects
               onEditProject={handleEditProject}
               onCreateProject={handleCreateProject}
+              onProjectDeleted={fetchProjectCount}
               isFormOpen={isFormOpen}
             />
             {isFormOpen && (

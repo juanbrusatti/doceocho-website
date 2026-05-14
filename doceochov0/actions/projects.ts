@@ -13,6 +13,25 @@ const projectSchema = z.object({
   size: z.enum(['large', 'small']),
 })
 
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
+const imageFileSchema = z.custom<File>((file) => {
+  if (!file) {
+    return false
+  }
+
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    return false
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return false
+  }
+
+  return true
+}, 'Invalid file: must be an image (JPEG, PNG, WebP, GIF) under 10MB')
+
 export async function getProjects() {
   try {
     const { data, error } = await supabase
@@ -99,15 +118,19 @@ export async function createProject(formData: {
     }
 
     const validatedData = projectSchema.parse(formData)
+    const validatedFile = imageFileSchema.parse(formData.imageFile)
 
-    // Upload image
+    // Upload image with content type
     const fileExt = formData.imageFile.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `${fileName}`
 
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('project-images')
-      .upload(filePath, formData.imageFile)
+      .upload(filePath, formData.imageFile, {
+        contentType: formData.imageFile.type,
+        upsert: false,
+      })
 
     if (uploadError) {
       console.error('Error uploading image:', uploadError)
@@ -148,6 +171,19 @@ export async function createProject(formData: {
       success: true,
     }
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      const fileError = error.errors.find((e) => e.path.includes('imageFile'))
+      if (fileError) {
+        return {
+          success: false,
+          error: fileError.message,
+        }
+      }
+      return {
+        success: false,
+        error: 'Validation error',
+      }
+    }
     console.error('Project creation error:', error)
     return {
       success: false,
@@ -236,6 +272,9 @@ export async function updateProjectImage(
       }
     }
 
+    // Validate file
+    const validatedFile = imageFileSchema.parse(imageFile)
+
     // Get current project
     const { data: currentProject, error: fetchError } = await supabaseAdmin
       .from('projects')
@@ -250,14 +289,17 @@ export async function updateProjectImage(
       }
     }
 
-    // Upload new image
+    // Upload new image with content type
     const fileExt = imageFile.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `${fileName}`
 
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('project-images')
-      .upload(filePath, imageFile)
+      .upload(filePath, imageFile, {
+        contentType: imageFile.type,
+        upsert: false,
+      })
 
     if (uploadError) {
       console.error('Error uploading image:', uploadError)
@@ -301,6 +343,19 @@ export async function updateProjectImage(
       success: true,
     }
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      const fileError = error.errors.find((e) => e.path.includes('imageFile'))
+      if (fileError) {
+        return {
+          success: false,
+          error: fileError.message,
+        }
+      }
+      return {
+        success: false,
+        error: 'Validation error',
+      }
+    }
     console.error('Project image update error:', error)
     return {
       success: false,

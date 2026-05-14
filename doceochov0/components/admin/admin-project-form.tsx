@@ -1,20 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, Upload, Image as ImageIcon } from 'lucide-react'
 import { createProject, updateProject, updateProjectImage } from '@/actions/projects'
-
-interface Project {
-  id: string
-  title: string
-  category: 'Residencial' | 'Comercial' | 'Mobiliario'
-  description: string
-  image_path: string
-  year: string
-  size: 'large' | 'small'
-  created_at: string
-  updated_at: string
-}
+import type { Project } from '@/types/project'
 
 interface AdminProjectFormProps {
   project: Project | null
@@ -27,6 +16,7 @@ export default function AdminProjectForm({ project, onClose, onSuccess }: AdminP
   const [error, setError] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const objectUrlRef = useRef<string | null>(null)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -49,11 +39,28 @@ export default function AdminProjectForm({ project, onClose, onSuccess }: AdminP
     }
   }, [project])
 
+  // Cleanup object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current)
+        objectUrlRef.current = null
+      }
+    }
+  }, [])
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       setImageFile(file)
+      
+      // Revoke previous object URL to prevent memory leak
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current)
+      }
+      
       const preview = URL.createObjectURL(file)
+      objectUrlRef.current = preview
       setImagePreview(preview)
     }
   }

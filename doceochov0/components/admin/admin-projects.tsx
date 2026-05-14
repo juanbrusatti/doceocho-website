@@ -4,26 +4,16 @@ import { useEffect, useState } from 'react'
 import { getProjects, deleteProject } from '@/actions/projects'
 import { Plus, Edit, Trash2, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
-
-interface Project {
-  id: string
-  title: string
-  category: 'Residencial' | 'Comercial' | 'Mobiliario'
-  description: string
-  image_path: string
-  year: string
-  size: 'large' | 'small'
-  created_at: string
-  updated_at: string
-}
+import type { Project } from '@/types/project'
 
 interface AdminProjectsProps {
   onEditProject: (project: Project) => void
   onCreateProject: () => void
+  onProjectDeleted: () => void
   isFormOpen: boolean
 }
 
-export default function AdminProjects({ onEditProject, onCreateProject, isFormOpen }: AdminProjectsProps) {
+export default function AdminProjects({ onEditProject, onCreateProject, onProjectDeleted, isFormOpen }: AdminProjectsProps) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -58,6 +48,7 @@ export default function AdminProjects({ onEditProject, onCreateProject, isFormOp
       const result = await deleteProject(id)
       if (result.success) {
         setProjects((prev) => prev.filter((p) => p.id !== id))
+        onProjectDeleted()
       } else {
         alert(result.error || 'Failed to delete project')
       }
