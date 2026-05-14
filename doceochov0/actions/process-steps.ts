@@ -19,7 +19,11 @@ const processStepUpdateSchema = z.object({
   order_index: z.number().int().min(0),
 })
 
-export async function getProcessSteps() {
+export async function getProcessSteps(): Promise<{
+  success: boolean
+  error?: string
+  steps: ProcessStep[]
+}> {
   try {
     const { data: steps, error } = await supabase
       .from('process_steps')
@@ -53,7 +57,11 @@ export async function createProcessStep(formData: {
   title: string
   description: string
   order_index: number
-}) {
+}): Promise<{
+  success: boolean
+  error?: string
+  step?: ProcessStep
+}> {
   try {
     const session = await getAdminSession()
     if (!session) {
@@ -78,6 +86,8 @@ export async function createProcessStep(formData: {
         title: validatedData.title,
         description: validatedData.description,
         order_index: validatedData.order_index,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single()
@@ -114,7 +124,11 @@ export async function updateProcessStep(formData: {
   title: string
   description: string
   order_index: number
-}) {
+}): Promise<{
+  success: boolean
+  error?: string
+  step?: ProcessStep
+}> {
   try {
     const session = await getAdminSession()
     if (!session) {
@@ -238,7 +252,17 @@ export async function reorderProcessSteps(stepIds: string[]) {
         .eq('id', id)
     )
 
-    await Promise.all(updatePromises)
+    const results = await Promise.allSettled(updatePromises)
+    
+    // Check if any update failed
+    const failedUpdates = results.filter(result => result.status === 'rejected')
+    if (failedUpdates.length > 0) {
+      console.error('Error reordering process steps: Some updates failed')
+      return {
+        success: false,
+        error: 'Failed to reorder process steps',
+      }
+    }
 
     return {
       success: true,

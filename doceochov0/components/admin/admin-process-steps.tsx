@@ -18,11 +18,20 @@ export default function AdminProcessSteps() {
 
   async function fetchSteps() {
     setLoading(true)
-    const result = await getProcessSteps()
-    if (result.success) {
-      setSteps(result.steps)
+    try {
+      const result = await getProcessSteps()
+      if (result.success) {
+        setSteps(result.steps)
+        setError(null)
+      } else {
+        setError(result.error || 'Failed to fetch steps')
+      }
+    } catch (error) {
+      console.error('Error fetching steps:', error)
+      setError('An error occurred while fetching steps')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   async function handleCreate(formData: { title: string; description: string }) {
@@ -215,15 +224,25 @@ interface StepFormProps {
 function StepForm({ initialTitle, initialDescription, onSubmit, onCancel, submitLabel }: StepFormProps) {
   const [title, setTitle] = useState(initialTitle)
   const [description, setDescription] = useState(initialDescription)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!title.trim() || !description.trim()) return
+    if (!title.trim() || !description.trim()) {
+      setValidationError('El título y la descripción son obligatorios')
+      return
+    }
+    setValidationError(null)
     onSubmit({ title: title.trim(), description: description.trim() })
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {validationError && (
+        <div className="p-3 bg-red-500/20 border border-red-500/50 text-red-200 rounded text-sm">
+          {validationError}
+        </div>
+      )}
       <div>
         <label className="block text-cream/60 text-sm mb-2">Título</label>
         <input

@@ -10,14 +10,24 @@ export default function ProcessSection() {
   const isInView = useInView(ref, { once: true, margin: '-10%' })
   const [steps, setSteps] = useState<ProcessStep[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchSteps() {
-      const result = await getProcessSteps()
-      if (result.success) {
-        setSteps(result.steps)
+      try {
+        const result = await getProcessSteps()
+        if (result.success) {
+          setSteps(result.steps)
+          setError(null)
+        } else {
+          setError(result.error || 'Failed to load process steps')
+        }
+      } catch (error) {
+        console.error('Error fetching process steps:', error)
+        setError('An error occurred while loading process steps')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     fetchSteps()
   }, [])
@@ -70,8 +80,22 @@ export default function ProcessSection() {
         </div>
 
         {/* Steps grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
-          {steps.map((step, i) => (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
+            <p className="mt-4 text-cream/50 text-sm">Cargando pasos del proceso...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        ) : steps.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-cream/50 text-sm">No hay pasos del proceso disponibles</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
+            {steps.map((step, i) => (
             <motion.div
               key={step.id}
               initial={{ opacity: 0, y: 30 }}
@@ -101,6 +125,7 @@ export default function ProcessSection() {
             </motion.div>
           ))}
         </div>
+        )}
       </div>
     </section>
   )
