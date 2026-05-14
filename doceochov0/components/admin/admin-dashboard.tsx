@@ -3,15 +3,17 @@
 import { Button } from '@/components/ui/button'
 import { logoutAdmin } from '@/actions/admin-auth'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard, Settings, Users, FileText, MessageSquare, ArrowLeft, Image as ImageIcon } from 'lucide-react'
+import { LayoutDashboard, Settings, Users, FileText, MessageSquare, ArrowLeft, Image as ImageIcon, List } from 'lucide-react'
 import AdminMessages from '@/components/admin/admin-messages'
 import AdminProjects from '@/components/admin/admin-projects'
 import AdminProjectForm from '@/components/admin/admin-project-form'
 import AdminPortfolioImages from '@/components/admin/admin-portfolio-images'
 import AdminPortfolioImageForm from '@/components/admin/admin-portfolio-image-form'
+import AdminProcessSteps from '@/components/admin/admin-process-steps'
 import { getContactMessages } from '@/actions/contact-messages'
 import { getProjects } from '@/actions/projects'
 import { getPortfolioProjects } from '@/actions/portfolio-images'
+import { getProcessSteps } from '@/actions/process-steps'
 import { useEffect, useState } from 'react'
 
 export default function AdminDashboard() {
@@ -20,7 +22,8 @@ export default function AdminDashboard() {
   const [countError, setCountError] = useState<string | null>(null)
   const [projectCount, setProjectCount] = useState(0)
   const [portfolioImageCount, setPortfolioImageCount] = useState(0)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages'>('dashboard')
+  const [processStepCount, setProcessStepCount] = useState(0)
+  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process'>('dashboard')
   const [editingProject, setEditingProject] = useState<any>(null)
   const [editingPortfolioImage, setEditingPortfolioImage] = useState<any>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -44,6 +47,17 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error fetching portfolio project count:', error)
+    }
+  }
+
+  const fetchProcessStepCount = async () => {
+    try {
+      const result = await getProcessSteps()
+      if (result.success) {
+        setProcessStepCount(result.steps.length)
+      }
+    } catch (error) {
+      console.error('Error fetching process step count:', error)
     }
   }
 
@@ -74,6 +88,10 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchPortfolioImageCount()
+  }, [])
+
+  useEffect(() => {
+    fetchProcessStepCount()
   }, [])
 
   const handleLogout = async () => {
@@ -142,7 +160,7 @@ export default function AdminDashboard() {
             )}
             <LayoutDashboard className="w-6 h-6 text-gold" />
             <h1 className="font-serif text-2xl text-cream">
-              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'portfolio' ? 'Gestión de Portfolio' : currentView === 'messages' ? 'Mensajes' : 'Panel de Administración'}
+              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'portfolio' ? 'Gestión de Portfolio' : currentView === 'messages' ? 'Mensajes' : currentView === 'process' ? 'Configuración del Proceso' : 'Panel de Administración'}
             </h1>
           </div>
           <Button
@@ -199,6 +217,17 @@ export default function AdminDashboard() {
                 <h3 className="font-serif text-lg text-cream mb-2">Mensajes</h3>
                 <p className="text-cream/60 text-sm">Ver los mensajes del formulario de contacto</p>
               </button>
+              <button
+                onClick={() => setCurrentView('process')}
+                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6 hover:border-gold/40 transition-colors duration-300 text-left"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-gold"><List className="w-8 h-8" /></div>
+                  <span className="text-2xl font-serif text-cream">{processStepCount}</span>
+                </div>
+                <h3 className="font-serif text-lg text-cream mb-2">Proceso</h3>
+                <p className="text-cream/60 text-sm">Configura los pasos del proceso</p>
+              </button>
               <DashboardCard
                 icon={<Settings className="w-8 h-8" />}
                 title="Configuración"
@@ -254,6 +283,12 @@ export default function AdminDashboard() {
         {currentView === 'messages' && (
           <div>
             <AdminMessages />
+          </div>
+        )}
+
+        {currentView === 'process' && (
+          <div>
+            <AdminProcessSteps />
           </div>
         )}
       </main>
