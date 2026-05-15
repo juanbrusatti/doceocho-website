@@ -27,11 +27,12 @@ export async function uploadImage(
     // Generate unique filename
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+    const filePath = `${folder}/${fileName}`
 
     // Upload to Supabase Storage (using portfolio-images bucket like portfolio does)
     const { data: uploadData, error: uploadError } = await client.storage
       .from('portfolio-images')
-      .upload(fileName, file, {
+      .upload(filePath, file, {
         contentType: file.type,
         upsert: false,
       })
@@ -47,7 +48,7 @@ export async function uploadImage(
     // Get public URL
     const { data: publicUrlData } = client.storage
       .from('portfolio-images')
-      .getPublicUrl(fileName)
+      .getPublicUrl(filePath)
 
     return {
       success: true,
@@ -66,7 +67,7 @@ export async function deleteImage(url: string): Promise<{ success: boolean; erro
   try {
     const client = supabaseAdmin || supabase
 
-    // Extract filename from URL
+    // Extract file path from URL
     const urlParts = url.split('/portfolio-images/')
     if (urlParts.length < 2) {
       return {
@@ -75,11 +76,11 @@ export async function deleteImage(url: string): Promise<{ success: boolean; erro
       }
     }
 
-    const fileName = urlParts[1]
+    const filePath = urlParts[1]
 
     const { error } = await client.storage
       .from('portfolio-images')
-      .remove([fileName])
+      .remove([filePath])
 
     if (error) {
       console.error('Error deleting image:', error)

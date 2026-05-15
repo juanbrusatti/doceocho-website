@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Save, X, Palette } from 'lucide-react'
 import { getThemeColors, updateThemeColors } from '@/actions/theme-colors'
 import type { ThemeColors, ThemeColorsFormData } from '@/types/theme-colors'
@@ -12,6 +12,7 @@ export default function AdminThemeColors() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const [formData, setFormData] = useState<ThemeColorsFormData>({
     gold: '',
@@ -46,6 +47,14 @@ export default function AdminThemeColors() {
     fetchColors()
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current)
+      }
+    }
+  }, [])
+
   function handleEdit() {
     setEditing(true)
     setError(null)
@@ -76,7 +85,9 @@ export default function AdminThemeColors() {
         setColors(result.colors)
         setEditing(false)
         setSuccess(true)
-        setTimeout(() => setSuccess(false), 3000)
+        successTimeoutRef.current = setTimeout(() => {
+          setSuccess(false)
+        }, 3000)
       } else {
         setError(result.error || 'Failed to update theme colors')
       }

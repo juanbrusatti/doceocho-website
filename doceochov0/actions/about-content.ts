@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client'
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { getAdminSession } from '@/actions/admin-auth'
 import type { AboutContent } from '@/types/about-content'
+import { STORAGE_BUCKET } from '@/constants/storage'
 
 const statSchema = z.object({
   value: z.string().min(1, 'Value is required'),
@@ -18,6 +19,14 @@ const aboutContentSchema = z.object({
   stats: z.array(statSchema).min(1, 'At least one stat is required'),
   image_path: z.string().min(1, 'Image path is required'),
 })
+
+const imageFileSchema = z
+  .instanceof(File)
+  .refine((file) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+    return validTypes.includes(file.type)
+  }, 'Invalid file type. Only JPG, PNG, WEBP, and GIF are allowed')
+  .refine((file) => file.size <= 5 * 1024 * 1024, 'File size must be less than 5MB')
 
 export async function getAboutContent(): Promise<{
   success: boolean
@@ -80,15 +89,51 @@ export async function updateAboutContent(formData: {
     }
 
     let imagePath = formData.image_path
+    const uploadedFiles: string[] = []
 
     // Upload new image if provided
     if (formData.imageFile) {
       const file = formData.imageFile
+
+      // Validate file on server side
+      try {
+        imageFileSchema.parse(file)
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            success: false,
+            error: error.errors[0].message,
+          }
+        }
+        return {
+          success: false,
+          error: 'Invalid file',
+        }
+      }
+
+      // Delete old image if it exists
+      if (imagePath) {
+        try {
+          const oldFileName = imagePath.split('/').pop()
+          if (oldFileName) {
+            const { error: deleteError } = await supabaseAdmin.storage
+              .from(STORAGE_BUCKET)
+              .remove([oldFileName])
+            if (deleteError) {
+              console.error('Error deleting old image:', deleteError)
+            }
+          }
+        } catch (error) {
+          console.error('Error deleting old image:', error)
+        }
+      }
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+      uploadedFiles.push(fileName)
 
       const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-        .from('portfolio-images')
+        .from(STORAGE_BUCKET)
         .upload(fileName, file, {
           contentType: file.type,
           upsert: false,
@@ -103,7 +148,7 @@ export async function updateAboutContent(formData: {
       }
 
       const { data: urlData } = supabaseAdmin.storage
-        .from('portfolio-images')
+        .from(STORAGE_BUCKET)
         .getPublicUrl(fileName)
 
       imagePath = urlData.publicUrl
@@ -124,6 +169,19 @@ export async function updateAboutContent(formData: {
       .single()
 
     if (!existingContent) {
+      // Rollback: delete uploaded files
+      if (uploadedFiles.length > 0) {
+        try {
+          const { error: deleteError } = await supabaseAdmin.storage
+            .from(STORAGE_BUCKET)
+            .remove(uploadedFiles)
+          if (deleteError) {
+            console.error('Error during rollback cleanup:', deleteError)
+          }
+        } catch (error) {
+          console.error('Error during rollback cleanup:', error)
+        }
+      }
       return {
         success: false,
         error: 'No about content found',
@@ -146,6 +204,19 @@ export async function updateAboutContent(formData: {
 
     if (error || !content) {
       console.error('Error updating about content:', error)
+      // Rollback: delete uploaded files
+      if (uploadedFiles.length > 0) {
+        try {
+          const { error: deleteError } = await supabaseAdmin.storage
+            .from(STORAGE_BUCKET)
+            .remove(uploadedFiles)
+          if (deleteError) {
+            console.error('Error during rollback cleanup:', deleteError)
+          }
+        } catch (error) {
+          console.error('Error during rollback cleanup:', error)
+        }
+      }
       return {
         success: false,
         error: 'Failed to update about content',
