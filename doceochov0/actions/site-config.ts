@@ -1,8 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { supabase } from '@/lib/supabase/client'
-import { supabaseAdmin } from '@/lib/supabase/client'
+import { supabase, supabaseAdmin } from '@/lib/supabase/client'
 import { getAdminSession } from '@/actions/admin-auth'
 import type { SiteConfig } from '@/types/site-config'
 
