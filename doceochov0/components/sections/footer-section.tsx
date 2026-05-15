@@ -1,11 +1,24 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { getSiteConfig } from '@/actions/site-config'
+import type { SiteConfig } from '@/types/site-config'
 
 export default function FooterSection() {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-5%' })
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null)
+
+  useEffect(() => {
+    async function fetchConfig() {
+      const result = await getSiteConfig()
+      if (result.success) {
+        setSiteConfig(result.config || null)
+      }
+    }
+    fetchConfig()
+  }, [])
 
   return (
     <footer
@@ -119,26 +132,28 @@ export default function FooterSection() {
             </p>
             <div className="flex flex-col gap-3">
               <a
-                href="https://wa.me/5493584178955"
+                href={`https://wa.me/${siteConfig?.whatsapp_number}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-sans font-light text-cream/50 text-xs hover:text-gold transition-colors duration-300"
               >
-                +54 9 358 417-8955
+                {siteConfig?.whatsapp_number 
+                  ? `+54 9 ${siteConfig.whatsapp_number.slice(3, 6)} ${siteConfig.whatsapp_number.slice(6, 9)}-${siteConfig.whatsapp_number.slice(9)}`
+                  : ''}
               </a>
               <a
-                href="mailto:doce8.estudio@gmail.com"
+                href={`mailto:${siteConfig?.email}`}
                 className="font-sans font-light text-cream/50 text-xs hover:text-gold transition-colors duration-300"
               >
-                doce8.estudio@gmail.com
+                {siteConfig?.email}
               </a>
               <a
-                href="https://instagram.com/doce8.estudio"
+                href={siteConfig?.instagram_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-sans font-light text-cream/50 text-xs hover:text-gold transition-colors duration-300"
               >
-                @doce8.estudio
+                @{siteConfig?.instagram_url?.split('/').pop()}
               </a>
               <span className="font-sans font-light text-cream/30 text-xs">
                 Córdoba, Argentina

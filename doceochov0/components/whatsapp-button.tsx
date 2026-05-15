@@ -2,14 +2,26 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getSiteConfig } from '@/actions/site-config'
 
 export default function WhatsAppButton() {
   const [visible, setVisible] = useState(false)
   const [tooltip, setTooltip] = useState(false)
+  const [whatsappNumber, setWhatsappNumber] = useState<string>('5493584178955')
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 3500)
     return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    async function fetchConfig() {
+      const result = await getSiteConfig()
+      if (result.success && result.config) {
+        setWhatsappNumber(result.config.whatsapp_number)
+      }
+    }
+    fetchConfig()
   }, [])
 
   return (
@@ -39,7 +51,7 @@ export default function WhatsAppButton() {
 
           {/* Button */}
           <a
-            href="https://wa.me/5493584178955?text=Hola%2C%20me%20interesa%20consultar%20sobre%20un%20proyecto."
+            href={`https://wa.me/${whatsappNumber}?text=Hola%2C%20me%20interesa%20consultar%20sobre%20un%20proyecto.`}
             target="_blank"
             rel="noopener noreferrer"
             onMouseEnter={() => setTooltip(true)}
