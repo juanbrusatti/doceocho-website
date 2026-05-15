@@ -3,11 +3,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
+import { getHeroContent } from '@/actions/hero-content'
 import { getSiteConfig } from '@/actions/site-config'
+import type { HeroContent } from '@/types/hero-content'
 import type { SiteConfig } from '@/types/site-config'
 
 export default function HeroSection() {
   const ref = useRef<HTMLDivElement>(null)
+  const [heroContent, setHeroContent] = useState<HeroContent | null>(null)
   const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null)
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -19,13 +22,19 @@ export default function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   useEffect(() => {
-    async function fetchConfig() {
-      const result = await getSiteConfig()
-      if (result.success) {
-        setSiteConfig(result.config || null)
+    async function fetchContent() {
+      const [heroResult, configResult] = await Promise.all([
+        getHeroContent(),
+        getSiteConfig(),
+      ])
+      if (heroResult.success) {
+        setHeroContent(heroResult.content || null)
+      }
+      if (configResult.success) {
+        setSiteConfig(configResult.config || null)
       }
     }
-    fetchConfig()
+    fetchContent()
   }, [])
 
   const containerVariants = {
@@ -53,7 +62,7 @@ export default function HeroSection() {
       {/* Parallax image */}
       <motion.div style={{ y: imageY }} className="absolute inset-0 scale-110">
         <Image
-          src="/images/hero-interior.jpg"
+          src={heroContent?.image_path || '/images/hero-interior.jpg'}
           alt="Interior arquitectónico de lujo — DoceOcho Estudio"
           fill
           priority
@@ -96,7 +105,7 @@ export default function HeroSection() {
               variants={lineVariant}
               className="font-serif font-light text-cream text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-[0.92] tracking-tight text-balance"
             >
-              Donde el diseño
+              {heroContent?.headline || 'Donde el diseño'}
             </motion.h1>
           </div>
           <div className="overflow-hidden">
@@ -104,7 +113,7 @@ export default function HeroSection() {
               variants={lineVariant}
               className="font-serif font-light italic text-cream text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl leading-[0.92] tracking-tight text-balance"
             >
-              y la materia se encuentran.
+              {heroContent?.headline_secondary || 'y la materia se encuentra.'}
             </motion.h1>
           </div>
         </motion.div>
@@ -117,8 +126,7 @@ export default function HeroSection() {
             animate="show"
             className="font-sans font-light text-cream/60 text-sm md:text-base leading-relaxed max-w-md tracking-wide"
           >
-            Arquitectura interior y mobiliario a medida.<br />
-            Proyectos completos. Detalles que definen.
+            {heroContent?.subtitle || 'Arquitectura interior y mobiliario a medida.<br />Proyectos completos. Detalles que definen.'}
           </motion.p>
 
           <motion.div
@@ -137,7 +145,7 @@ export default function HeroSection() {
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                 <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.128 1.526 5.873L.057 23.887l6.204-1.626A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.86 0-3.62-.476-5.164-1.32l-.37-.22-3.825 1.002 1.024-3.727-.242-.382A9.96 9.96 0 0 1 2 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z" />
               </svg>
-              Consultar proyecto
+              {heroContent?.cta_text || 'Consultar proyecto'}
             </a>
             <a
               href={siteConfig?.instagram_url}
@@ -155,7 +163,7 @@ export default function HeroSection() {
               }}
               className="font-sans text-[11px] tracking-[0.35em] uppercase text-cream/80 border border-cream/25 px-6 py-3.5 hover:border-cream hover:text-cream transition-all duration-300"
             >
-              Ver proyectos
+              {heroContent?.cta_secondary_text || 'Ver proyectos'}
             </button>
           </motion.div>
         </div>
