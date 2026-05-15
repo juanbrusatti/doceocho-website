@@ -16,6 +16,9 @@ export default function AdminSiteConfig() {
     whatsapp_number: '',
     email: '',
     instagram_url: '',
+    studio_name: '',
+    footer_tagline: '',
+    specialties: [] as string[],
   })
 
   useEffect(() => {
@@ -33,6 +36,9 @@ export default function AdminSiteConfig() {
             whatsapp_number: result.config.whatsapp_number,
             email: result.config.email,
             instagram_url: result.config.instagram_url,
+            studio_name: result.config.studio_name,
+            footer_tagline: result.config.footer_tagline,
+            specialties: result.config.specialties,
           })
         }
       } else {
@@ -69,6 +75,9 @@ export default function AdminSiteConfig() {
         whatsapp_number: config.whatsapp_number,
         email: config.email,
         instagram_url: config.instagram_url,
+        studio_name: config.studio_name,
+        footer_tagline: config.footer_tagline,
+        specialties: config.specialties,
       })
     }
     setError(null)
@@ -131,6 +140,43 @@ export default function AdminSiteConfig() {
               />
             </div>
 
+            <div className="border-t border-cream/10 pt-6">
+              <h3 className="text-gold font-serif text-lg mb-4">Footer</h3>
+              
+              <div className="mb-4">
+                <label className="block text-cream/60 text-sm mb-2">Nombre del estudio</label>
+                <input
+                  type="text"
+                  value={formData.studio_name}
+                  onChange={(e) => setFormData({ ...formData, studio_name: e.target.value })}
+                  className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
+                  placeholder="Ej: DoceOcho Estudio"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-cream/60 text-sm mb-2">Frase del footer</label>
+                <input
+                  type="text"
+                  value={formData.footer_tagline}
+                  onChange={(e) => setFormData({ ...formData, footer_tagline: e.target.value })}
+                  className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
+                  placeholder='Ej: "Diseño en conjunto. Córdoba, Argentina."'
+                />
+              </div>
+
+              <div>
+                <label className="block text-cream/60 text-sm mb-2">Especialidades (una por línea)</label>
+                <textarea
+                  value={formData.specialties.join('\n')}
+                  onChange={(e) => setFormData({ ...formData, specialties: e.target.value.split('\n').filter(s => s.trim()) })}
+                  className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors min-h-[120px]"
+                  placeholder="Ej: Arquitectura residencial&#10;Arquitectura comercial&#10;Cocinas a medida"
+                />
+                <p className="text-cream/40 text-xs mt-1">Escribe cada especialidad en una línea nueva</p>
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -167,6 +213,29 @@ export default function AdminSiteConfig() {
               <div>
                 <label className="block text-cream/60 text-sm mb-2">URL de Instagram</label>
                 <p className="text-cream font-mono">{config.instagram_url}</p>
+              </div>
+
+              <div className="border-t border-cream/10 pt-6">
+                <h3 className="text-gold font-serif text-lg mb-4">Footer</h3>
+                
+                <div className="mb-4">
+                  <label className="block text-cream/60 text-sm mb-2">Nombre del estudio</label>
+                  <p className="text-cream font-mono">{config.studio_name}</p>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-cream/60 text-sm mb-2">Frase del footer</label>
+                  <p className="text-cream font-mono">"{config.footer_tagline}"</p>
+                </div>
+
+                <div>
+                  <label className="block text-cream/60 text-sm mb-2">Especialidades</label>
+                  <ul className="text-cream font-mono">
+                    {config.specialties.map((specialty, index) => (
+                      <li key={index} className="py-1">{specialty}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
 

@@ -43,7 +43,7 @@ export default function FooterSection() {
             transition={{ duration: 1, delay: 0.15, ease: [0.76, 0, 0.24, 1] as const }}
             className="font-serif font-light italic text-cream text-3xl md:text-4xl lg:text-5xl text-balance max-w-2xl"
           >
-            &ldquo;Diseño en conjunto. Córdoba, Argentina.&rdquo;
+            &ldquo;{siteConfig?.footer_tagline || 'Diseño en conjunto. Córdoba, Argentina.'}&rdquo;
           </motion.p>
         </div>
 
@@ -57,8 +57,12 @@ export default function FooterSection() {
             className="flex flex-col gap-4 md:col-span-1"
           >
             <div className="flex flex-col items-start gap-0.5">
-              <span className="font-serif text-cream text-2xl tracking-[0.2em] font-light">DoceOcho Estudio</span>
-              <span className="font-sans text-gold text-[7px] tracking-[0.5em] uppercase">Estudio</span>
+              <span className="font-serif text-cream text-2xl tracking-[0.2em] font-light leading-none group-hover:text-gold transition-colors duration-300">
+                {siteConfig?.studio_name || 'DoceOcho Estudio'}
+              </span>
+              <span className="font-sans text-gold text-[7px] tracking-[0.5em] uppercase leading-none">
+                Estudio
+              </span>
             </div>
             <p className="font-sans font-light text-cream/40 text-xs leading-relaxed">
               Arquitectura interior y mobiliario a medida.
@@ -103,15 +107,15 @@ export default function FooterSection() {
               Especialidades
             </p>
             <ul className="flex flex-col gap-3">
-              {[
+              {(siteConfig?.specialties || [
                 'Arquitectura residencial',
                 'Arquitectura comercial',
                 'Cocinas a medida',
                 'Vestidores',
                 'Panelería mural',
                 'Bibliotecas',
-              ].map((item) => (
-                <li key={item}>
+              ]).map((item, index) => (
+                <li key={index}>
                   <span className="font-sans font-light text-cream/40 text-xs">
                     {item}
                   </span>
