@@ -33,7 +33,7 @@ export default function AdminDashboard() {
   const [processStepCount, setProcessStepCount] = useState(0)
   const [materialQualityCount, setMaterialQualityCount] = useState(0)
   const [testimonialCount, setTestimonialCount] = useState(0)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about' | 'settings'>('dashboard')
   const [editingProject, setEditingProject] = useState<any>(null)
   const [editingPortfolioImage, setEditingPortfolioImage] = useState<any>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
             )}
             <LayoutDashboard className="w-6 h-6 text-gold" />
             <h1 className="font-serif text-2xl text-cream">
-              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'portfolio' ? 'Gestión de Portfolio' : currentView === 'messages' ? 'Mensajes' : currentView === 'process' ? 'Configuración del Proceso' : currentView === 'materials' ? 'Configuración de Materiales' : currentView === 'testimonials' ? 'Configuración de Testimonios' : currentView === 'config' ? 'Configuración General' : currentView === 'hero' ? 'Hero Section' : currentView === 'seo' ? 'SEO / Metadata' : currentView === 'about' ? 'About / Estudio' : 'Panel de Administración'}
+              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'portfolio' ? 'Gestión de Portfolio' : currentView === 'messages' ? 'Mensajes' : currentView === 'process' ? 'Configuración del Proceso' : currentView === 'materials' ? 'Configuración de Materiales' : currentView === 'testimonials' ? 'Configuración de Testimonios' : currentView === 'config' ? 'Configuración General' : currentView === 'hero' ? 'Hero Section' : currentView === 'seo' ? 'SEO / Metadata' : currentView === 'about' ? 'About / Estudio' : currentView === 'settings' ? 'Configuración' : 'Panel de Administración'}
             </h1>
           </div>
           <Button
@@ -215,14 +215,14 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-6 py-8">
-        {currentView === 'dashboard' && (
+        {currentView === 'settings' && (
           <>
             <div className="mb-8">
-              <h2 className="font-serif text-3xl text-cream mb-2">Bienvenido/a, Admin</h2>
-              <p className="text-cream/60">Gestiona el contenido de DoceOcho Studio</p>
+              <h2 className="font-serif text-3xl text-cream mb-2">Configuración</h2>
+              <p className="text-cream/60">Gestiona todo el contenido del sitio</p>
             </div>
 
-            {/* Dashboard Cards */}
+            {/* Configuration Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <button
                 onClick={() => setCurrentView('projects')}
@@ -245,17 +245,6 @@ export default function AdminDashboard() {
                 </div>
                 <h3 className="font-serif text-lg text-cream mb-2">Portfolio</h3>
                 <p className="text-cream/60 text-sm">Gestiona las imágenes del portfolio</p>
-              </button>
-              <button
-                onClick={() => setCurrentView('messages')}
-                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6 hover:border-gold/40 transition-colors duration-300 text-left"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-gold"><Users className="w-8 h-8" /></div>
-                  <span className="text-2xl font-serif text-cream">{messageCount}</span>
-                </div>
-                <h3 className="font-serif text-lg text-cream mb-2">Mensajes</h3>
-                <p className="text-cream/60 text-sm">Ver los mensajes del formulario de contacto</p>
               </button>
               <button
                 onClick={() => setCurrentView('process')}
@@ -296,10 +285,9 @@ export default function AdminDashboard() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="text-gold"><Settings className="w-8 h-8" /></div>
-                  <span className="text-2xl font-serif text-cream">1</span>
                 </div>
-                <h3 className="font-serif text-lg text-cream mb-2">Configuración</h3>
-                <p className="text-cream/60 text-sm">Configura WhatsApp, email e Instagram</p>
+                <h3 className="font-serif text-lg text-cream mb-2">General</h3>
+                <p className="text-cream/60 text-sm">WhatsApp, email e Instagram</p>
               </button>
               <button
                 onClick={() => setCurrentView('hero')}
@@ -307,7 +295,6 @@ export default function AdminDashboard() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="text-gold"><ImageIcon className="w-8 h-8" /></div>
-                  <span className="text-2xl font-serif text-cream">1</span>
                 </div>
                 <h3 className="font-serif text-lg text-cream mb-2">Hero Section</h3>
                 <p className="text-cream/60 text-sm">Edita el contenido principal</p>
@@ -318,7 +305,6 @@ export default function AdminDashboard() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="text-gold"><List className="w-8 h-8" /></div>
-                  <span className="text-2xl font-serif text-cream">1</span>
                 </div>
                 <h3 className="font-serif text-lg text-cream mb-2">SEO / Metadata</h3>
                 <p className="text-cream/60 text-sm">Edita título, descripción y OG tags</p>
@@ -329,10 +315,43 @@ export default function AdminDashboard() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="text-gold"><LayoutDashboard className="w-8 h-8" /></div>
-                  <span className="text-2xl font-serif text-cream">1</span>
                 </div>
                 <h3 className="font-serif text-lg text-cream mb-2">About / Estudio</h3>
                 <p className="text-cream/60 text-sm">Edita contenido del estudio</p>
+              </button>
+            </div>
+          </>
+        )}
+
+        {currentView === 'dashboard' && (
+          <>
+            <div className="mb-8">
+              <h2 className="font-serif text-3xl text-cream mb-2">Bienvenido/a, Admin</h2>
+              <p className="text-cream/60">Gestiona el contenido de DoceOcho Studio</p>
+            </div>
+
+            {/* Dashboard Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <button
+                onClick={() => setCurrentView('settings')}
+                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-8 hover:border-gold/40 transition-colors duration-300 text-left"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-gold"><Settings className="w-12 h-12" /></div>
+                </div>
+                <h3 className="font-serif text-xl text-cream mb-2">Configuración</h3>
+                <p className="text-cream/60 text-sm">Gestiona todo el contenido del sitio</p>
+              </button>
+              <button
+                onClick={() => setCurrentView('messages')}
+                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-8 hover:border-gold/40 transition-colors duration-300 text-left"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-gold"><Users className="w-12 h-12" /></div>
+                  <span className="text-3xl font-serif text-cream">{messageCount}</span>
+                </div>
+                <h3 className="font-serif text-xl text-cream mb-2">Mensajes</h3>
+                <p className="text-cream/60 text-sm">Ver los mensajes del formulario de contacto</p>
               </button>
             </div>
 
