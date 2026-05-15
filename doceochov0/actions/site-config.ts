@@ -9,6 +9,9 @@ const siteConfigSchema = z.object({
   whatsapp_number: z.string().min(1, 'WhatsApp number is required'),
   email: z.string().email('Invalid email address'),
   instagram_url: z.string().url('Invalid Instagram URL'),
+  studio_name: z.string().min(1, 'Studio name is required'),
+  footer_tagline: z.string().min(1, 'Footer tagline is required'),
+  specialties: z.array(z.string()).min(1, 'At least one specialty is required'),
 })
 
 export async function getSiteConfig(): Promise<{
@@ -47,6 +50,9 @@ export async function updateSiteConfig(formData: {
   whatsapp_number: string
   email: string
   instagram_url: string
+  studio_name: string
+  footer_tagline: string
+  specialties: string[]
 }): Promise<{
   success: boolean
   error?: string
@@ -89,6 +95,9 @@ export async function updateSiteConfig(formData: {
         whatsapp_number: validatedData.whatsapp_number,
         email: validatedData.email,
         instagram_url: validatedData.instagram_url,
+        studio_name: validatedData.studio_name,
+        footer_tagline: validatedData.footer_tagline,
+        specialties: validatedData.specialties,
         updated_at: new Date().toISOString(),
       })
       .eq('id', existingConfig.id)
