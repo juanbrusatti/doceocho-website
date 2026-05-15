@@ -16,6 +16,7 @@ import AdminSiteConfig from './admin-site-config'
 import AdminHeroContent from './admin-hero-content'
 import AdminSEOMetadata from './admin-seo-metadata'
 import AdminAboutContent from './admin-about-content'
+import AdminThemeColors from './admin-theme-colors'
 import { getContactMessages } from '@/actions/contact-messages'
 import { getProjects } from '@/actions/projects'
 import { getPortfolioProjects } from '@/actions/portfolio-images'
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
   const [processStepCount, setProcessStepCount] = useState(0)
   const [materialQualityCount, setMaterialQualityCount] = useState(0)
   const [testimonialCount, setTestimonialCount] = useState(0)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about' | 'settings'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about' | 'settings' | 'theme'>('dashboard')
   const [editingProject, setEditingProject] = useState<any>(null)
   const [editingPortfolioImage, setEditingPortfolioImage] = useState<any>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -200,7 +201,7 @@ export default function AdminDashboard() {
             )}
             <LayoutDashboard className="w-6 h-6 text-gold" />
             <h1 className="font-serif text-2xl text-cream">
-              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'portfolio' ? 'Gestión de Portfolio' : currentView === 'messages' ? 'Mensajes' : currentView === 'process' ? 'Configuración del Proceso' : currentView === 'materials' ? 'Configuración de Materiales' : currentView === 'testimonials' ? 'Configuración de Testimonios' : currentView === 'config' ? 'Configuración General' : currentView === 'hero' ? 'Hero Section' : currentView === 'seo' ? 'SEO / Metadata' : currentView === 'about' ? 'About / Estudio' : currentView === 'settings' ? 'Configuración' : 'Panel de Administración'}
+              {currentView === 'projects' ? 'Gestión de Proyectos' : currentView === 'portfolio' ? 'Gestión de Portfolio' : currentView === 'messages' ? 'Mensajes' : currentView === 'process' ? 'Configuración del Proceso' : currentView === 'materials' ? 'Configuración de Materiales' : currentView === 'testimonials' ? 'Configuración de Testimonios' : currentView === 'config' ? 'Configuración General' : currentView === 'hero' ? 'Hero Section' : currentView === 'seo' ? 'SEO / Metadata' : currentView === 'about' ? 'About / Estudio' : currentView === 'settings' ? 'Configuración' : currentView === 'theme' ? 'Colores del Tema' : 'Panel de Administración'}
             </h1>
           </div>
           <Button
@@ -318,6 +319,16 @@ export default function AdminDashboard() {
                 </div>
                 <h3 className="font-serif text-lg text-cream mb-2">About / Estudio</h3>
                 <p className="text-cream/60 text-sm">Edita contenido del estudio</p>
+              </button>
+              <button
+                onClick={() => setCurrentView('theme')}
+                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6 hover:border-gold/40 transition-colors duration-300 text-left"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-gold"><Settings className="w-8 h-8" /></div>
+                </div>
+                <h3 className="font-serif text-lg text-cream mb-2">Colores del Tema</h3>
+                <p className="text-cream/60 text-sm">Edita los colores del sitio</p>
               </button>
             </div>
           </>
@@ -444,6 +455,12 @@ export default function AdminDashboard() {
         {currentView === 'about' && (
           <div>
             <AdminAboutContent />
+          </div>
+        )}
+
+        {currentView === 'theme' && (
+          <div>
+            <AdminThemeColors />
           </div>
         )}
       </main>

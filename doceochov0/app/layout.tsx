@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { getSEOMetadata } from '@/actions/seo-metadata'
+import SiteThemeProvider from '@/components/site-theme-provider'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -94,7 +95,9 @@ export default function RootLayout({
   return (
     <html lang="es-AR" className={`${cormorant.variable} ${dmSans.variable} bg-background`}>
       <body className="font-sans antialiased grain-overlay">
-        {children}
+        <SiteThemeProvider>
+          {children}
+        </SiteThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
