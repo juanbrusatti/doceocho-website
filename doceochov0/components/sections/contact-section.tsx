@@ -50,7 +50,13 @@ export default function ContactSection() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(Array.from(e.target.files))
+      const selectedFiles = Array.from(e.target.files)
+      // Limit to maximum 3 files
+      if (selectedFiles.length > 3) {
+        alert('Máximo 3 archivos permitidos')
+        return
+      }
+      setFiles(selectedFiles)
     }
   }
 
@@ -330,7 +336,7 @@ export default function ContactSection() {
 
                 <div className="flex flex-col gap-2">
                   <label htmlFor="files" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40">
-                    Archivos (PDF, imágenes, planos)
+                    Archivos (PDF, imágenes, planos) - Máximo 3
                   </label>
                   <input
                     id="files"

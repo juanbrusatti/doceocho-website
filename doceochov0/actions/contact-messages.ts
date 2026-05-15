@@ -14,6 +14,15 @@ export async function uploadContactFiles(files: File[]) {
       }
     }
 
+    // Validate file count limit (max 3)
+    if (files.length > 3) {
+      return {
+        success: false,
+        error: 'Maximum 3 files allowed',
+        filePaths: [],
+      }
+    }
+
     const fileUrls: string[] = []
 
     for (const file of files) {
