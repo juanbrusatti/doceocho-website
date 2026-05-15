@@ -1,18 +1,31 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
 import Image from 'next/image'
-
-const stats = [
-  { value: '12+', label: 'Años de experiencia' },
-  { value: '180+', label: 'Proyectos ejecutados' },
-  { value: '100%', label: 'Proyectos integrales' },
-]
+import { getAboutContent } from '@/actions/about-content'
+import type { AboutContent } from '@/types/about-content'
 
 export default function AboutSection() {
   const ref = useRef<HTMLDivElement>(null)
+  const [aboutContent, setAboutContent] = useState<AboutContent | null>(null)
   const isInView = useInView(ref, { once: true, margin: '-15%' })
+
+  useEffect(() => {
+    async function fetchContent() {
+      const result = await getAboutContent()
+      if (result.success) {
+        setAboutContent(result.content || null)
+      }
+    }
+    fetchContent()
+  }, [])
+
+  const stats = aboutContent?.stats || [
+    { value: '12+', label: 'Años de experiencia' },
+    { value: '180+', label: 'Proyectos ejecutados' },
+    { value: '100%', label: 'Proyectos integrales' },
+  ]
 
   const stagger = {
     hidden: {},
@@ -68,7 +81,7 @@ export default function AboutSection() {
                 id="about-heading"
                 className="font-serif font-light text-petroleum-dark text-4xl md:text-5xl lg:text-6xl leading-tight text-balance"
               >
-                Creamos espacios que trascienden la tendencia.
+                {aboutContent?.title || 'Creamos espacios que trascienden la tendencia.'}
               </motion.h2>
             </div>
 
@@ -76,7 +89,7 @@ export default function AboutSection() {
               variants={fadeUp}
               className="font-sans font-light text-petroleum-dark/70 text-base leading-relaxed max-w-md"
             >
-              Doce Ocho nació de la convicción de que un espacio bien resuelto transforma la manera en que se vive. Diseñamos, fabricamos e instalamos cada proyecto como una obra única — con taller propio, equipo dedicado y un proceso que no deja nada al azar.
+              {aboutContent?.description || 'Doce Ocho nació de la convicción de que un espacio bien resuelto transforma la manera en que se vive. Diseñamos, fabricamos e instalamos cada proyecto como una obra única — con taller propio, equipo dedicado y un proceso que no deja nada al azar.'}
             </motion.p>
 
             <motion.blockquote
@@ -84,7 +97,7 @@ export default function AboutSection() {
               className="border-l-2 border-gold pl-6 mt-2"
             >
               <p className="font-serif italic text-petroleum-dark text-xl md:text-2xl leading-snug">
-                &ldquo;Lo que no se ve es lo que sostiene todo lo demás.&rdquo;
+                &ldquo;{aboutContent?.quote || 'Lo que no se ve es lo que sostiene todo lo demás.'}&rdquo;
               </p>
             </motion.blockquote>
 
@@ -115,7 +128,7 @@ export default function AboutSection() {
           >
             <div className="relative aspect-[3/4] overflow-hidden">
               <Image
-                src="/images/studio-workshop.jpg"
+                src={aboutContent?.image_path || '/images/studio-workshop.jpg'}
                 alt="Taller de DoceOcho Studio — proceso de fabricación artesanal"
                 fill
                 className="object-cover"

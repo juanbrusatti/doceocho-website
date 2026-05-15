@@ -54,6 +54,8 @@ export async function updateSEOMetadata(formData: {
   og_description: string
   og_image: string
   favicon: string
+  ogImageFile?: File
+  faviconFile?: File
 }): Promise<{
   success: boolean
   error?: string
@@ -75,7 +77,73 @@ export async function updateSEOMetadata(formData: {
       }
     }
 
-    const validatedData = seoMetadataSchema.parse(formData)
+    let ogImagePath = formData.og_image
+    let faviconPath = formData.favicon
+
+    // Upload OG image if provided
+    if (formData.ogImageFile) {
+      const file = formData.ogImageFile
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+
+      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+        .from('portfolio-images')
+        .upload(fileName, file, {
+          contentType: file.type,
+          upsert: false,
+        })
+
+      if (uploadError) {
+        console.error('Error uploading OG image:', uploadError)
+        return {
+          success: false,
+          error: uploadError.message,
+        }
+      }
+
+      const { data: urlData } = supabaseAdmin.storage
+        .from('portfolio-images')
+        .getPublicUrl(fileName)
+
+      ogImagePath = urlData.publicUrl
+    }
+
+    // Upload favicon if provided
+    if (formData.faviconFile) {
+      const file = formData.faviconFile
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+
+      const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+        .from('portfolio-images')
+        .upload(fileName, file, {
+          contentType: file.type,
+          upsert: false,
+        })
+
+      if (uploadError) {
+        console.error('Error uploading favicon:', uploadError)
+        return {
+          success: false,
+          error: uploadError.message,
+        }
+      }
+
+      const { data: urlData } = supabaseAdmin.storage
+        .from('portfolio-images')
+        .getPublicUrl(fileName)
+
+      faviconPath = urlData.publicUrl
+    }
+
+    const validatedData = seoMetadataSchema.parse({
+      title: formData.title,
+      description: formData.description,
+      og_title: formData.og_title,
+      og_description: formData.og_description,
+      og_image: ogImagePath,
+      favicon: faviconPath,
+    })
 
     // First, get the existing metadata ID
     const { data: existingMetadata } = await supabaseAdmin

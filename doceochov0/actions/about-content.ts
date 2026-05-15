@@ -4,33 +4,37 @@ import { z } from 'zod'
 import { supabase } from '@/lib/supabase/client'
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { getAdminSession } from '@/actions/admin-auth'
-import type { HeroContent } from '@/types/hero-content'
+import type { AboutContent } from '@/types/about-content'
 
-const heroContentSchema = z.object({
-  headline: z.string().min(1, 'Headline is required'),
-  headline_secondary: z.string().min(1, 'Headline secondary is required'),
-  subtitle: z.string().min(1, 'Subtitle is required'),
-  cta_text: z.string().min(1, 'CTA text is required'),
-  cta_secondary_text: z.string().min(1, 'CTA secondary text is required'),
+const statSchema = z.object({
+  value: z.string().min(1, 'Value is required'),
+  label: z.string().min(1, 'Label is required'),
+})
+
+const aboutContentSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  quote: z.string().min(1, 'Quote is required'),
+  stats: z.array(statSchema).min(1, 'At least one stat is required'),
   image_path: z.string().min(1, 'Image path is required'),
 })
 
-export async function getHeroContent(): Promise<{
+export async function getAboutContent(): Promise<{
   success: boolean
   error?: string
-  content?: HeroContent
+  content?: AboutContent
 }> {
   try {
     const { data: content, error } = await supabase
-      .from('hero_content')
+      .from('about_content')
       .select('*')
       .single()
 
     if (error || !content) {
-      console.error('Error fetching hero content:', error)
+      console.error('Error fetching About content:', error)
       return {
         success: false,
-        error: 'Failed to fetch hero content',
+        error: 'Failed to fetch About content',
       }
     }
 
@@ -39,7 +43,7 @@ export async function getHeroContent(): Promise<{
       content,
     }
   } catch (error) {
-    console.error('Error fetching hero content:', error)
+    console.error('Error fetching About content:', error)
     return {
       success: false,
       error: 'An error occurred',
@@ -47,18 +51,17 @@ export async function getHeroContent(): Promise<{
   }
 }
 
-export async function updateHeroContent(formData: {
-  headline: string
-  headline_secondary: string
-  subtitle: string
-  cta_text: string
-  cta_secondary_text: string
+export async function updateAboutContent(formData: {
+  title: string
+  description: string
+  quote: string
+  stats: { value: string; label: string }[]
   image_path: string
   imageFile?: File
 }): Promise<{
   success: boolean
   error?: string
-  content?: HeroContent
+  content?: AboutContent
 }> {
   try {
     const session = await getAdminSession()
@@ -106,36 +109,34 @@ export async function updateHeroContent(formData: {
       imagePath = urlData.publicUrl
     }
 
-    const validatedData = heroContentSchema.parse({
-      headline: formData.headline,
-      headline_secondary: formData.headline_secondary,
-      subtitle: formData.subtitle,
-      cta_text: formData.cta_text,
-      cta_secondary_text: formData.cta_secondary_text,
+    const validatedData = aboutContentSchema.parse({
+      title: formData.title,
+      description: formData.description,
+      quote: formData.quote,
+      stats: formData.stats,
       image_path: imagePath,
     })
 
     // First, get the existing content ID
     const { data: existingContent } = await supabaseAdmin
-      .from('hero_content')
+      .from('about_content')
       .select('id')
       .single()
 
     if (!existingContent) {
       return {
         success: false,
-        error: 'No hero content found',
+        error: 'No about content found',
       }
     }
 
     const { data: content, error } = await supabaseAdmin
-      .from('hero_content')
+      .from('about_content')
       .update({
-        headline: validatedData.headline,
-        headline_secondary: validatedData.headline_secondary,
-        subtitle: validatedData.subtitle,
-        cta_text: validatedData.cta_text,
-        cta_secondary_text: validatedData.cta_secondary_text,
+        title: validatedData.title,
+        description: validatedData.description,
+        quote: validatedData.quote,
+        stats: validatedData.stats,
         image_path: validatedData.image_path,
         updated_at: new Date().toISOString(),
       })
@@ -144,10 +145,10 @@ export async function updateHeroContent(formData: {
       .single()
 
     if (error || !content) {
-      console.error('Error updating hero content:', error)
+      console.error('Error updating about content:', error)
       return {
         success: false,
-        error: 'Failed to update hero content',
+        error: 'Failed to update about content',
       }
     }
 
@@ -162,7 +163,7 @@ export async function updateHeroContent(formData: {
         error: error.errors[0].message,
       }
     }
-    console.error('Error updating hero content:', error)
+    console.error('Error updating about content:', error)
     return {
       success: false,
       error: 'An error occurred',

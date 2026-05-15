@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { getSEOMetadata, updateSEOMetadata } from '@/actions/seo-metadata'
 import type { SEOMetadata } from '@/types/seo-metadata'
-import { Save, X, Settings as SettingsIcon } from 'lucide-react'
+import { Save, X, Settings as SettingsIcon, Image as ImageIcon } from 'lucide-react'
+import Image from 'next/image'
 
 export default function AdminSEOMetadata() {
   const [metadata, setMetadata] = useState<SEOMetadata | null>(null)
@@ -12,6 +13,10 @@ export default function AdminSEOMetadata() {
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [ogImageFile, setOgImageFile] = useState<File | null>(null)
+  const [ogImagePreview, setOgImagePreview] = useState<string>('')
+  const [faviconFile, setFaviconFile] = useState<File | null>(null)
+  const [faviconPreview, setFaviconPreview] = useState<string>('')
 
   const [formData, setFormData] = useState({
     title: '',
@@ -59,10 +64,18 @@ export default function AdminSEOMetadata() {
     setSuccess(false)
 
     try {
-      const result = await updateSEOMetadata(formData)
+      const result = await updateSEOMetadata({
+        ...formData,
+        ogImageFile: ogImageFile || undefined,
+        faviconFile: faviconFile || undefined,
+      })
       if (result.success) {
         setMetadata(result.metadata || null)
         setEditing(false)
+        setOgImageFile(null)
+        setOgImagePreview('')
+        setFaviconFile(null)
+        setFaviconPreview('')
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
       } else {
@@ -87,6 +100,28 @@ export default function AdminSEOMetadata() {
       })
     }
     setError(null)
+    setOgImageFile(null)
+    setOgImagePreview('')
+    setFaviconFile(null)
+    setFaviconPreview('')
+  }
+
+  function handleOgImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) {
+      setOgImageFile(file)
+      const preview = URL.createObjectURL(file)
+      setOgImagePreview(preview)
+    }
+  }
+
+  function handleFaviconSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) {
+      setFaviconFile(file)
+      const preview = URL.createObjectURL(file)
+      setFaviconPreview(preview)
+    }
   }
 
   return (
@@ -142,13 +177,27 @@ export default function AdminSEOMetadata() {
 
                   <div className="mb-4">
                     <label className="block text-cream/60 text-sm mb-2">OG Image</label>
-                    <p className="text-cream font-mono">{metadata.og_image}</p>
+                    <div className="relative aspect-video w-48 bg-petroleum-dark/50 border border-cream/20 rounded-lg overflow-hidden">
+                      <Image
+                        src={metadata.og_image}
+                        alt="OG Image"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-cream/60 text-sm mb-2">Favicon</label>
-                  <p className="text-cream font-mono">{metadata.favicon}</p>
+                  <div className="relative aspect-square w-16 bg-petroleum-dark/50 border border-cream/20 rounded-lg overflow-hidden">
+                    <Image
+                      src={metadata.favicon}
+                      alt="Favicon"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -214,27 +263,57 @@ export default function AdminSEOMetadata() {
 
                   <div className="mb-4">
                     <label className="block text-cream/60 text-sm mb-2">OG Image</label>
-                    <input
-                      type="text"
-                      value={formData.og_image}
-                      onChange={(e) => setFormData({ ...formData, og_image: e.target.value })}
-                      className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
-                      placeholder="Ej: /images/og-image.jpg"
-                    />
-                    <p className="text-cream/40 text-xs mt-1">Imagen de 1200x630px recomendada</p>
+                    <div className="space-y-3">
+                      <div className="relative aspect-video w-48 bg-petroleum-dark/50 border border-cream/20 rounded-lg overflow-hidden">
+                        {ogImagePreview || formData.og_image ? (
+                          <Image
+                            src={ogImagePreview || formData.og_image}
+                            alt="OG Image preview"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <ImageIcon className="w-6 h-6 text-cream/30" />
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleOgImageSelect}
+                        className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:bg-gold file:text-petroleum-dark file:cursor-pointer"
+                      />
+                      <p className="text-cream/40 text-xs">Imagen de 1200x630px recomendada. Máximo 5MB</p>
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-cream/60 text-sm mb-2">Favicon</label>
-                  <input
-                    type="text"
-                    value={formData.favicon}
-                    onChange={(e) => setFormData({ ...formData, favicon: e.target.value })}
-                    className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
-                    placeholder="Ej: /favicon.ico"
-                  />
-                  <p className="text-cream/40 text-xs mt-1">Archivo .ico o .png de 32x32px</p>
+                  <div className="space-y-3">
+                    <div className="relative aspect-square w-16 bg-petroleum-dark/50 border border-cream/20 rounded-lg overflow-hidden">
+                      {faviconPreview || formData.favicon ? (
+                        <Image
+                          src={faviconPreview || formData.favicon}
+                          alt="Favicon preview"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <ImageIcon className="w-4 h-4 text-cream/30" />
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFaviconSelect}
+                      className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:bg-gold file:text-petroleum-dark file:cursor-pointer"
+                    />
+                    <p className="text-cream/40 text-xs">Archivo .ico o .png de 32x32px. Máximo 5MB</p>
+                  </div>
                 </div>
 
                 <div className="flex gap-2">

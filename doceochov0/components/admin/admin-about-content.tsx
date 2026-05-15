@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { getHeroContent, updateHeroContent } from '@/actions/hero-content'
-import type { HeroContent } from '@/types/hero-content'
-import { Save, X, Settings as SettingsIcon, Image as ImageIcon } from 'lucide-react'
+import { getAboutContent, updateAboutContent } from '@/actions/about-content'
+import type { AboutContent } from '@/types/about-content'
+import { Save, X, Plus, Trash2, Settings as SettingsIcon, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 
-export default function AdminHeroContent() {
-  const [content, setContent] = useState<HeroContent | null>(null)
+export default function AdminAboutContent() {
+  const [content, setContent] = useState<AboutContent | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -17,11 +17,10 @@ export default function AdminHeroContent() {
   const [imagePreview, setImagePreview] = useState<string>('')
 
   const [formData, setFormData] = useState({
-    headline: '',
-    headline_secondary: '',
-    subtitle: '',
-    cta_text: '',
-    cta_secondary_text: '',
+    title: '',
+    description: '',
+    quote: '',
+    stats: [{ value: '', label: '' }] as { value: string; label: string }[],
     image_path: '',
   })
 
@@ -32,25 +31,24 @@ export default function AdminHeroContent() {
   async function fetchContent() {
     setLoading(true)
     try {
-      const result = await getHeroContent()
+      const result = await getAboutContent()
       if (result.success) {
         setContent(result.content || null)
         if (result.content) {
           setFormData({
-            headline: result.content.headline,
-            headline_secondary: result.content.headline_secondary,
-            subtitle: result.content.subtitle,
-            cta_text: result.content.cta_text,
-            cta_secondary_text: result.content.cta_secondary_text,
+            title: result.content.title,
+            description: result.content.description,
+            quote: result.content.quote,
+            stats: result.content.stats,
             image_path: result.content.image_path,
           })
         }
       } else {
-        setError(result.error || 'Failed to fetch hero content')
+        setError(result.error || 'Failed to fetch About content')
       }
     } catch (error) {
-      console.error('Error fetching hero content:', error)
-      setError('An error occurred while fetching hero content')
+      console.error('Error fetching About content:', error)
+      setError('An error occurred while fetching About content')
     } finally {
       setLoading(false)
     }
@@ -62,7 +60,7 @@ export default function AdminHeroContent() {
     setSuccess(false)
 
     try {
-      const result = await updateHeroContent({
+      const result = await updateAboutContent({
         ...formData,
         imageFile: imageFile || undefined,
       })
@@ -74,11 +72,11 @@ export default function AdminHeroContent() {
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
       } else {
-        setError(result.error || 'Failed to update hero content')
+        setError(result.error || 'Failed to update About content')
       }
     } catch (error) {
-      console.error('Error updating hero content:', error)
-      setError('An error occurred while updating hero content')
+      console.error('Error updating About content:', error)
+      setError('An error occurred while updating About content')
     }
   }
 
@@ -86,11 +84,10 @@ export default function AdminHeroContent() {
     setEditing(false)
     if (content) {
       setFormData({
-        headline: content.headline,
-        headline_secondary: content.headline_secondary,
-        subtitle: content.subtitle,
-        cta_text: content.cta_text,
-        cta_secondary_text: content.cta_secondary_text,
+        title: content.title,
+        description: content.description,
+        quote: content.quote,
+        stats: content.stats,
         image_path: content.image_path,
       })
     }
@@ -108,10 +105,30 @@ export default function AdminHeroContent() {
     }
   }
 
+  function addStat() {
+    setFormData({
+      ...formData,
+      stats: [...formData.stats, { value: '', label: '' }],
+    })
+  }
+
+  function removeStat(index: number) {
+    setFormData({
+      ...formData,
+      stats: formData.stats.filter((_, i) => i !== index),
+    })
+  }
+
+  function updateStat(index: number, field: 'value' | 'label', value: string) {
+    const newStats = [...formData.stats]
+    newStats[index][field] = value
+    setFormData({ ...formData, stats: newStats })
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-serif font-light text-cream">Hero Section</h2>
+        <h2 className="text-2xl font-serif font-light text-cream">About / Estudio</h2>
         {success && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -137,36 +154,38 @@ export default function AdminHeroContent() {
             <div className="bg-petroleum-light/30 border border-cream/10 rounded-lg p-6">
               <div className="space-y-6">
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Título principal</label>
-                  <p className="text-cream font-mono">{content.headline}</p>
+                  <label className="block text-cream/60 text-sm mb-2">Título</label>
+                  <p className="text-cream font-mono">{content.title}</p>
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Título secundario (italic)</label>
-                  <p className="text-cream font-mono">{content.headline_secondary}</p>
+                  <label className="block text-cream/60 text-sm mb-2">Descripción</label>
+                  <p className="text-cream font-mono text-sm">{content.description}</p>
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Subtítulo</label>
-                  <p className="text-cream font-mono">{content.subtitle}</p>
+                  <label className="block text-cream/60 text-sm mb-2">Cita</label>
+                  <p className="text-cream font-mono italic">"{content.quote}"</p>
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Texto del botón principal (WhatsApp)</label>
-                  <p className="text-cream font-mono">{content.cta_text}</p>
+                  <label className="block text-cream/60 text-sm mb-2">Estadísticas</label>
+                  <div className="space-y-2">
+                    {content.stats.map((stat, index) => (
+                      <div key={index} className="flex gap-4">
+                        <span className="text-cream font-mono">{stat.value}</span>
+                        <span className="text-cream font-mono">{stat.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Texto del botón de scroll</label>
-                  <p className="text-cream font-mono">{content.cta_secondary_text}</p>
-                </div>
-
-                <div>
-                  <label className="block text-cream/60 text-sm mb-2">Imagen del Hero</label>
+                  <label className="block text-cream/60 text-sm mb-2">Imagen del Estudio</label>
                   <div className="relative aspect-video w-48 bg-petroleum-dark/50 border border-cream/20 rounded-lg overflow-hidden">
                     <Image
                       src={content.image_path}
-                      alt="Hero image"
+                      alt="Studio image"
                       fill
                       className="object-cover"
                     />
@@ -188,61 +207,80 @@ export default function AdminHeroContent() {
             <div className="bg-petroleum-light/30 border border-gold/30 rounded-lg p-6">
               <form onSubmit={handleUpdate} className="space-y-6">
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Título principal</label>
+                  <label className="block text-cream/60 text-sm mb-2">Título</label>
                   <input
                     type="text"
-                    value={formData.headline}
-                    onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
-                    placeholder="Ej: Donde el diseño"
+                    placeholder="Ej: Creamos espacios que trascienden la tendencia."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Título secundario (italic)</label>
-                  <input
-                    type="text"
-                    value={formData.headline_secondary}
-                    onChange={(e) => setFormData({ ...formData, headline_secondary: e.target.value })}
-                    className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
-                    placeholder="Ej: y la materia se encuentra"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-cream/60 text-sm mb-2">Subtítulo</label>
+                  <label className="block text-cream/60 text-sm mb-2">Descripción</label>
                   <textarea
-                    value={formData.subtitle}
-                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                    className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors min-h-[100px]"
-                    placeholder="Ej: Arquitectura interior y mobiliario a medida. Proyectos completos. Detalles que definen."
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors min-h-[150px]"
+                    placeholder="Ej: Doce Ocho nació de la convicción de que un espacio bien resuelto..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Texto del botón principal (WhatsApp)</label>
+                  <label className="block text-cream/60 text-sm mb-2">Cita</label>
                   <input
                     type="text"
-                    value={formData.cta_text}
-                    onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
+                    value={formData.quote}
+                    onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
                     className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
-                    placeholder="Ej: Consultar proyecto"
+                    placeholder="Ej: Lo que no se ve es lo que sostiene todo lo demás"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Texto del botón de scroll</label>
-                  <input
-                    type="text"
-                    value={formData.cta_secondary_text}
-                    onChange={(e) => setFormData({ ...formData, cta_secondary_text: e.target.value })}
-                    className="w-full px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
-                    placeholder="Ej: Ver proyectos"
-                  />
+                  <label className="block text-cream/60 text-sm mb-2">Estadísticas</label>
+                  <div className="space-y-3">
+                    {formData.stats.map((stat, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={stat.value}
+                          onChange={(e) => updateStat(index, 'value', e.target.value)}
+                          className="flex-1 px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
+                          placeholder="Ej: 12+"
+                        />
+                        <input
+                          type="text"
+                          value={stat.label}
+                          onChange={(e) => updateStat(index, 'label', e.target.value)}
+                          className="flex-1 px-4 py-2 bg-petroleum-dark/50 border border-cream/20 rounded text-cream placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors"
+                          placeholder="Ej: Años de experiencia"
+                        />
+                        {formData.stats.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeStat(index)}
+                            className="px-3 py-2 border border-red-500/30 text-red-400 rounded hover:bg-red-500/10 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={addStat}
+                      className="flex items-center gap-2 px-4 py-2 border border-cream/20 text-cream/60 rounded hover:border-cream/40 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Agregar estadística
+                    </button>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-cream/60 text-sm mb-2">Imagen del Hero</label>
+                  <label className="block text-cream/60 text-sm mb-2">Imagen del Estudio</label>
                   <div className="space-y-3">
                     <div className="relative aspect-video w-48 bg-petroleum-dark/50 border border-cream/20 rounded-lg overflow-hidden">
                       {imagePreview || formData.image_path ? (
@@ -254,7 +292,7 @@ export default function AdminHeroContent() {
                         />
                       ) : (
                         <div className="flex items-center justify-center h-full">
-                          <ImageIcon className="w-8 h-8 text-cream/30" />
+                          <ImageIcon className="w-6 h-6 text-cream/30" />
                         </div>
                       )}
                     </div>
