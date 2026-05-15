@@ -1,11 +1,14 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
+import { getSiteConfig } from '@/actions/site-config'
+import type { SiteConfig } from '@/types/site-config'
 
 export default function HeroSection() {
   const ref = useRef<HTMLDivElement>(null)
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null)
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end start'],
@@ -14,6 +17,16 @@ export default function HeroSection() {
   const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '25%'])
   const textY = useTransform(scrollYProgress, [0, 1], ['0%', '40%'])
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+
+  useEffect(() => {
+    async function fetchConfig() {
+      const result = await getSiteConfig()
+      if (result.success) {
+        setSiteConfig(result.config || null)
+      }
+    }
+    fetchConfig()
+  }, [])
 
   const containerVariants = {
     hidden: {},
@@ -115,7 +128,7 @@ export default function HeroSection() {
             className="flex flex-wrap items-center gap-4"
           >
             <a
-              href="https://wa.me/5493512000000?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos."
+              href={`https://wa.me/${siteConfig?.whatsapp_number}?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos.`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-gold text-petroleum-dark font-sans text-[11px] tracking-[0.35em] uppercase px-6 py-3.5 hover:bg-cream transition-colors duration-300"
@@ -127,7 +140,7 @@ export default function HeroSection() {
               Consultar proyecto
             </a>
             <a
-              href="https://instagram.com/doce8.estudio"
+              href={siteConfig?.instagram_url}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 font-sans text-[11px] tracking-[0.35em] uppercase text-cream/80 border border-cream/25 px-6 py-3.5 hover:border-cream hover:text-cream transition-all duration-300"

@@ -1,8 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { saveContactMessage, uploadContactFiles } from '@/actions/contact-messages'
+import { getSiteConfig } from '@/actions/site-config'
+import type { SiteConfig } from '@/types/site-config'
 
 const projectTypes = [
   'Arquitectura residencial',
@@ -28,6 +30,17 @@ export default function ContactSection() {
   const [sent, setSent] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [files, setFiles] = useState<File[]>([])
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null)
+
+  useEffect(() => {
+    async function fetchConfig() {
+      const result = await getSiteConfig()
+      if (result.success) {
+        setSiteConfig(result.config || null)
+      }
+    }
+    fetchConfig()
+  }, [])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -141,7 +154,7 @@ export default function ContactSection() {
               className="flex flex-col gap-5 pt-4 border-t border-cream/10"
             >
               <a
-                href="https://wa.me/5493584178955"
+                href={`https://wa.me/${siteConfig?.whatsapp_number || '5493584178955'}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 group"
@@ -153,13 +166,17 @@ export default function ContactSection() {
                   </svg>
                 </span>
                 <div>
-                  <p className="font-sans text-cream text-sm">+54 9 358 417-8955</p>
+                  <p className="font-sans text-cream text-sm">
+                    {siteConfig?.whatsapp_number 
+                      ? `+54 9 ${siteConfig.whatsapp_number.slice(3, 6)} ${siteConfig.whatsapp_number.slice(6, 9)}-${siteConfig.whatsapp_number.slice(9)}`
+                      : '+54 9 358 417-8955'}
+                  </p>
                   <p className="font-sans text-cream/40 text-xs">WhatsApp — respuesta inmediata</p>
                 </div>
               </a>
 
               <a
-                href="mailto:doce8.estudio@gmail.com"
+                href={`mailto:${siteConfig?.email || 'doce8.estudio@gmail.com'}`}
                 className="flex items-center gap-4 group"
               >
                 <span className="w-10 h-10 border border-gold/30 flex items-center justify-center group-hover:bg-gold group-hover:border-gold transition-all duration-300">
@@ -168,7 +185,7 @@ export default function ContactSection() {
                   </svg>
                 </span>
                 <div>
-                  <p className="font-sans text-cream text-sm">doce8.estudio@gmail.com</p>
+                  <p className="font-sans text-cream text-sm">{siteConfig?.email || 'doce8.estudio@gmail.com'}</p>
                   <p className="font-sans text-cream/40 text-xs">Email corporativo</p>
                 </div>
               </a>

@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { getSiteConfig } from '@/actions/site-config'
+import type { SiteConfig } from '@/types/site-config'
 
 const navLinks = [
   { label: 'Estudio', href: '#estudio' },
@@ -21,6 +23,7 @@ export default function Navbar() {
   const [hidden, setHidden] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const lastScrollY = useRef(0)
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,6 +34,16 @@ export default function Navbar() {
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    async function fetchConfig() {
+      const result = await getSiteConfig()
+      if (result.success) {
+        setSiteConfig(result.config || null)
+      }
+    }
+    fetchConfig()
   }, [])
 
   const handleNavClick = (href: string) => {
@@ -102,7 +115,7 @@ export default function Navbar() {
           {/* CTA + burger */}
           <div className="flex items-center gap-6">
             <a
-              href="https://wa.me/5493584178955?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos."
+              href={`https://wa.me/${siteConfig?.whatsapp_number}?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20proyectos.`}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase font-sans text-gold border border-gold/40 px-4 py-2 hover:bg-gold hover:text-petroleum-dark transition-all duration-300"
@@ -110,7 +123,7 @@ export default function Navbar() {
               WhatsApp
             </a>
             <a
-              href="https://instagram.com/doce8.estudio"
+              href={siteConfig?.instagram_url}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase font-sans text-gold border border-gold/40 px-4 py-2 hover:bg-gold hover:text-petroleum-dark transition-all duration-300"
@@ -169,7 +182,7 @@ export default function Navbar() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: navLinks.length * 0.07 + 0.1, duration: 0.4 }}
-              href="https://wa.me/5493584178955"
+              href={`https://wa.me/${siteConfig?.whatsapp_number}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-8 text-[10px] tracking-[0.4em] uppercase font-sans text-gold border border-gold/40 px-8 py-3 hover:bg-gold hover:text-petroleum-dark transition-all duration-300"
@@ -180,7 +193,7 @@ export default function Navbar() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: navLinks.length * 0.07 + 0.15, duration: 0.4 }}
-              href="https://instagram.com/doce8.estudio"
+              href={siteConfig?.instagram_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[10px] tracking-[0.4em] uppercase font-sans text-gold border border-gold/40 px-8 py-3 hover:bg-gold hover:text-petroleum-dark transition-all duration-300 flex items-center gap-2"
