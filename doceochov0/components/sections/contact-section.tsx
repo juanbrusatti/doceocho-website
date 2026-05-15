@@ -51,11 +51,33 @@ export default function ContactSection() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files)
+
       // Limit to maximum 3 files
       if (selectedFiles.length > 3) {
         alert('Máximo 3 archivos permitidos')
+        e.target.value = '' // Reset input
         return
       }
+
+      // Validate file sizes (max 10MB per file, 25MB total)
+      const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+      const MAX_TOTAL_SIZE = 25 * 1024 * 1024 // 25MB
+
+      for (const file of selectedFiles) {
+        if (file.size > MAX_FILE_SIZE) {
+          alert(`El archivo "${file.name}" excede el límite de 10MB`)
+          e.target.value = '' // Reset input
+          return
+        }
+      }
+
+      const totalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0)
+      if (totalSize > MAX_TOTAL_SIZE) {
+        alert('El tamaño total de los archivos excede el límite de 25MB')
+        e.target.value = '' // Reset input
+        return
+      }
+
       setFiles(selectedFiles)
     }
   }

@@ -23,6 +23,29 @@ export async function uploadContactFiles(files: File[]) {
       }
     }
 
+    // Validate file sizes (max 10MB per file, 25MB total)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+    const MAX_TOTAL_SIZE = 25 * 1024 * 1024 // 25MB
+
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        return {
+          success: false,
+          error: `File "${file.name}" exceeds 10MB limit`,
+          filePaths: [],
+        }
+      }
+    }
+
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+    if (totalSize > MAX_TOTAL_SIZE) {
+      return {
+        success: false,
+        error: 'Total file size exceeds 25MB limit',
+        filePaths: [],
+      }
+    }
+
     const fileUrls: string[] = []
 
     for (const file of files) {
