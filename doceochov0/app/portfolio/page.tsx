@@ -5,14 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { X } from 'lucide-react'
 import { getPortfolioProjects } from '@/actions/portfolio-images'
+import { getPortfolioCategories } from '@/actions/portfolio-categories'
 import type { PortfolioProjectWithImages } from '@/types/portfolio'
-
-const categories = ['Todos', 'Residencial', 'Comercial', 'Mobiliario']
 
 export default function PortfolioPage() {
   const [selectedCategory, setSelectedCategory] = useState('Todos')
   const [hoveredProject, setHoveredProject] = useState<string | null>(null)
   const [projects, setProjects] = useState<PortfolioProjectWithImages[]>([])
+  const [categories, setCategories] = useState<string[]>(['Todos'])
   const [loading, setLoading] = useState(true)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImages, setLightboxImages] = useState<string[]>([])
@@ -20,19 +20,28 @@ export default function PortfolioPage() {
   const [carouselStates, setCarouselStates] = useState<Record<string, number>>({})
 
   useEffect(() => {
-    async function fetchProjects() {
+    async function fetchData() {
       try {
-        const result = await getPortfolioProjects()
-        if (result.success) {
-          setProjects(result.projects)
+        const [projectsResult, categoriesResult] = await Promise.all([
+          getPortfolioProjects(),
+          getPortfolioCategories()
+        ])
+
+        if (projectsResult.success) {
+          setProjects(projectsResult.projects)
+        }
+
+        if (categoriesResult.success && categoriesResult.categories) {
+          const categoryNames = categoriesResult.categories.map(cat => cat.name)
+          setCategories(['Todos', ...categoryNames])
         }
       } catch (error) {
-        console.error('Error fetching portfolio projects:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
-    fetchProjects()
+    fetchData()
   }, [])
   
   const filteredProjects = selectedCategory === 'Todos' 

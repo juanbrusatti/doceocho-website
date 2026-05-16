@@ -4,13 +4,13 @@ import { useRef, useState, useEffect } from 'react'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { getProjects } from '@/actions/projects'
-
-const categories = ['Todos', 'Residencial', 'Comercial', 'Mobiliario']
+import { getPortfolioCategories } from '@/actions/portfolio-categories'
+import type { PortfolioCategory } from '@/types/portfolio-categories'
 
 interface Project {
   id: string
   title: string
-  category: 'Residencial' | 'Comercial' | 'Mobiliario'
+  category: string
   description: string
   image_path: string
   year: string
@@ -23,22 +23,32 @@ export default function PortfolioSection() {
   const [activeCategory, setActiveCategory] = useState('Todos')
   const [hoveredProject, setHoveredProject] = useState<string | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
+  const [categories, setCategories] = useState<string[]>(['Todos'])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchProjects() {
+    async function fetchData() {
       try {
-        const result = await getProjects()
-        if (result.success) {
-          setProjects(result.projects)
+        const [projectsResult, categoriesResult] = await Promise.all([
+          getProjects(),
+          getPortfolioCategories()
+        ])
+
+        if (projectsResult.success) {
+          setProjects(projectsResult.projects)
+        }
+
+        if (categoriesResult.success && categoriesResult.categories) {
+          const categoryNames = categoriesResult.categories.map(cat => cat.name)
+          setCategories(['Todos', ...categoryNames])
         }
       } catch (error) {
-        console.error('Error fetching projects:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
-    fetchProjects()
+    fetchData()
   }, [])
 
   const filtered =
