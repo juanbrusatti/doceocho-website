@@ -7,7 +7,11 @@ import { getAdminSession } from '@/actions/admin-auth'
 import type { PortfolioCategory, PortfolioCategoryFormData } from '@/types/portfolio-categories'
 
 const portfolioCategorySchema = z.object({
-  name: z.string().min(1, 'Category name is required').max(100, 'Category name must be less than 100 characters'),
+  name: z.string()
+    .min(1, 'Category name is required')
+    .max(100, 'Category name must be less than 100 characters')
+    .trim()
+    .refine(val => val.length > 0, 'Category name cannot be only whitespace'),
 })
 
 export async function getPortfolioCategories() {
@@ -99,6 +103,14 @@ export async function createPortfolioCategory(formData: PortfolioCategoryFormDat
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
+
+    // Validate that slug is not empty
+    if (!slug) {
+      return {
+        success: false,
+        error: 'Category name must contain at least one alphanumeric character',
+      }
+    }
 
     // Check if category with same name already exists
     const { data: existingCategory } = await supabaseAdmin
@@ -192,6 +204,14 @@ export async function updatePortfolioCategory(
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
 
+    // Validate that slug is not empty
+    if (!slug) {
+      return {
+        success: false,
+        error: 'Category name must contain at least one alphanumeric character',
+      }
+    }
+
     // Check if category with same name already exists (excluding current category)
     const { data: existingCategory } = await supabaseAdmin
       .from('portfolio_categories')
@@ -277,11 +297,25 @@ export async function deletePortfolioCategory(id: string) {
       }
     }
 
-    // Check if category has associated projects
+    // First, get the category name
+    const { data: category } = await supabaseAdmin
+      .from('portfolio_categories')
+      .select('name')
+      .eq('id', id)
+      .single()
+
+    if (!category) {
+      return {
+        success: false,
+        error: 'Category not found',
+      }
+    }
+
+    // Check if category has associated projects (by category name, not ID)
     const { data: projects } = await supabaseAdmin
       .from('portfolio_projects')
       .select('id')
-      .eq('category', id)
+      .eq('category', category.name)
       .limit(1)
 
     if (projects && projects.length > 0) {
