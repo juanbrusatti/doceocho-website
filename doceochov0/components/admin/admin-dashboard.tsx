@@ -17,6 +17,7 @@ import AdminHeroContent from './admin-hero-content'
 import AdminSEOMetadata from './admin-seo-metadata'
 import AdminAboutContent from './admin-about-content'
 import AdminThemeColors from './AdminThemeColors'
+import AdminPortfolioCategories from './AdminPortfolioCategories'
 import { getContactMessages } from '@/actions/contact-messages'
 import { getProjects } from '@/actions/projects'
 import { getPortfolioProjects } from '@/actions/portfolio-images'
@@ -34,7 +35,7 @@ export default function AdminDashboard() {
   const [processStepCount, setProcessStepCount] = useState(0)
   const [materialQualityCount, setMaterialQualityCount] = useState(0)
   const [testimonialCount, setTestimonialCount] = useState(0)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about' | 'settings' | 'theme'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about' | 'settings' | 'theme' | 'categories'>('dashboard')
   const [editingProject, setEditingProject] = useState<any>(null)
   const [editingPortfolioImage, setEditingPortfolioImage] = useState<any>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -330,6 +331,16 @@ export default function AdminDashboard() {
                 <h3 className="font-serif text-lg text-cream mb-2">Colores del Tema</h3>
                 <p className="text-cream/60 text-sm">Edita los colores del sitio</p>
               </button>
+              <button
+                onClick={() => setCurrentView('categories')}
+                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-6 hover:border-gold/40 transition-colors duration-300 text-left"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-gold"><ImageIcon className="w-8 h-8" /></div>
+                </div>
+                <h3 className="font-serif text-lg text-cream mb-2">Categorías del Portfolio</h3>
+                <p className="text-cream/60 text-sm">Gestiona las categorías de proyectos</p>
+              </button>
             </div>
           </>
         )}
@@ -461,6 +472,12 @@ export default function AdminDashboard() {
         {currentView === 'theme' && (
           <div>
             <AdminThemeColors />
+          </div>
+        )}
+
+        {currentView === 'categories' && (
+          <div>
+            <AdminPortfolioCategories />
           </div>
         )}
       </main>

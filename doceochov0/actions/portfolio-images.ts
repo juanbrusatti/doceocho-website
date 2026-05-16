@@ -27,13 +27,13 @@ const imageFileSchema = z.custom<File>((file) => {
 
 const portfolioProjectSchema = z.object({
   title: z.string().nullable().optional(),
-  category: z.enum(['Residencial', 'Comercial', 'Mobiliario']),
+  category: z.string().min(1, 'Category is required'),
   imageFiles: z.array(imageFileSchema).min(1, 'At least one image is required'),
 })
 
 const portfolioProjectUpdateSchema = z.object({
   title: z.string().nullable().optional(),
-  category: z.enum(['Residencial', 'Comercial', 'Mobiliario']),
+  category: z.string().min(1, 'Category is required'),
 })
 
 export async function getPortfolioProjects() {
@@ -134,7 +134,7 @@ export async function getPortfolioProject(id: string) {
 
 export async function createPortfolioProject(formData: {
   title: string | null
-  category: 'Residencial' | 'Comercial' | 'Mobiliario'
+  category: string
   imageFiles: File[]
 }) {
   try {
@@ -280,7 +280,7 @@ export async function updatePortfolioProject(
   id: string,
   formData: {
     title: string | null
-    category: 'Residencial' | 'Comercial' | 'Mobiliario'
+    category: string
   }
 ) {
   try {
