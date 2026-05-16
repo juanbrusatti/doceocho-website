@@ -1,7 +1,7 @@
 export interface PortfolioProject {
   id: string
   title: string | null
-  category: 'Residencial' | 'Comercial' | 'Mobiliario'
+  category: string
   created_at: string
   updated_at: string
 }

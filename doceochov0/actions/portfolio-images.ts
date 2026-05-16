@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { supabase } from '@/lib/supabase/client'
 import { supabaseAdmin } from '@/lib/supabase/client'
 import { getAdminSession } from '@/actions/admin-auth'
+import { getPortfolioCategories } from '@/actions/portfolio-categories'
 import type { PortfolioProjectWithImages } from '@/types/portfolio'
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
@@ -27,14 +28,27 @@ const imageFileSchema = z.custom<File>((file) => {
 
 const portfolioProjectSchema = z.object({
   title: z.string().nullable().optional(),
-  category: z.enum(['Residencial', 'Comercial', 'Mobiliario']),
+  category: z.string().min(1, 'Category is required'),
   imageFiles: z.array(imageFileSchema).min(1, 'At least one image is required'),
 })
 
 const portfolioProjectUpdateSchema = z.object({
   title: z.string().nullable().optional(),
-  category: z.enum(['Residencial', 'Comercial', 'Mobiliario']),
+  category: z.string().min(1, 'Category is required'),
 })
+
+async function validateCategoryExists(categoryName: string): Promise<boolean> {
+  try {
+    const result = await getPortfolioCategories()
+    if (!result.success || !result.categories) {
+      return false
+    }
+    return result.categories.some(cat => cat.name === categoryName)
+  } catch (error) {
+    console.error('Error validating category:', error)
+    return false
+  }
+}
 
 export async function getPortfolioProjects() {
   try {
@@ -134,7 +148,7 @@ export async function getPortfolioProject(id: string) {
 
 export async function createPortfolioProject(formData: {
   title: string | null
-  category: 'Residencial' | 'Comercial' | 'Mobiliario'
+  category: string
   imageFiles: File[]
 }) {
   try {
@@ -161,10 +175,19 @@ export async function createPortfolioProject(formData: {
     }
 
     const validatedData = portfolioProjectSchema.parse(formData)
-    
+
     // Validate all files
     for (const file of formData.imageFiles) {
       imageFileSchema.parse(file)
+    }
+
+    // Validate that category exists
+    const categoryExists = await validateCategoryExists(validatedData.category)
+    if (!categoryExists) {
+      return {
+        success: false,
+        error: 'Category does not exist. Please create the category first.',
+      }
     }
 
     // Create project
@@ -280,7 +303,7 @@ export async function updatePortfolioProject(
   id: string,
   formData: {
     title: string | null
-    category: 'Residencial' | 'Comercial' | 'Mobiliario'
+    category: string
   }
 ) {
   try {
@@ -300,6 +323,15 @@ export async function updatePortfolioProject(
     }
 
     const validatedData = portfolioProjectUpdateSchema.parse(formData)
+
+    // Validate that category exists
+    const categoryExists = await validateCategoryExists(validatedData.category)
+    if (!categoryExists) {
+      return {
+        success: false,
+        error: 'Category does not exist. Please create the category first.',
+      }
+    }
 
     const { error } = await supabaseAdmin
       .from('portfolio_projects')

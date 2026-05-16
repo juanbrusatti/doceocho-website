@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { X, Upload, Image as ImageIcon, Plus } from 'lucide-react'
 import { createPortfolioProject, updatePortfolioProject, addProjectImages, deleteProjectImage } from '@/actions/portfolio-images'
+import { getPortfolioCategories } from '@/actions/portfolio-categories'
 import type { PortfolioProjectWithImages } from '@/types/portfolio'
+import type { PortfolioCategory } from '@/types/portfolio-categories'
 
 interface AdminPortfolioImageFormProps {
   image: PortfolioProjectWithImages | null
@@ -18,13 +20,31 @@ export default function AdminPortfolioImageForm({ image, onClose, onSuccess }: A
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [imageIds, setImageIds] = useState<string[]>([]) // Track IDs of existing images
   const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]) // Track IDs of images marked for deletion
+  const [categories, setCategories] = useState<PortfolioCategory[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(true)
   const objectUrlRefs = useRef<string[]>([])
   const objectUrlIndices = useRef<Set<number>>(new Set()) // Track which indices are object URLs
 
   const [formData, setFormData] = useState({
     title: '',
-    category: 'Residencial' as 'Residencial' | 'Comercial' | 'Mobiliario',
+    category: '',
   })
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const result = await getPortfolioCategories()
+        if (result.success && result.categories) {
+          setCategories(result.categories)
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      } finally {
+        setLoadingCategories(false)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   useEffect(() => {
     if (image) {
@@ -278,17 +298,30 @@ export default function AdminPortfolioImageForm({ image, onClose, onSuccess }: A
             <label htmlFor="category" className="font-sans text-[10px] tracking-[0.3em] uppercase text-cream/40 block mb-2">
               Categoría
             </label>
-            <select
-              id="category"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-              disabled={isSubmitting}
-              className="w-full bg-transparent border border-cream/20 rounded-lg px-4 py-3 text-cream focus:border-gold outline-none transition-colors duration-300 disabled:opacity-50"
-            >
-              <option value="Residencial" className="bg-petroleum-dark">Residencial</option>
-              <option value="Comercial" className="bg-petroleum-dark">Comercial</option>
-              <option value="Mobiliario" className="bg-petroleum-dark">Mobiliario</option>
-            </select>
+            {loadingCategories ? (
+              <div className="w-full bg-transparent border border-cream/20 rounded-lg px-4 py-3 text-cream/50">
+                Cargando categorías...
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="w-full bg-transparent border border-cream/20 rounded-lg px-4 py-3 text-cream/50">
+                No hay categorías disponibles. Crea categorías en la sección de configuración.
+              </div>
+            ) : (
+              <select
+                id="category"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                disabled={isSubmitting}
+                className="w-full bg-transparent border border-cream/20 rounded-lg px-4 py-3 text-cream focus:border-gold outline-none transition-colors duration-300 disabled:opacity-50"
+              >
+                <option value="" className="bg-petroleum-dark">Selecciona una categoría</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name} className="bg-petroleum-dark">
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Actions */}
