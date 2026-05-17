@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { X } from 'lucide-react'
 import { getPortfolioProjects } from '@/actions/portfolio-images'
 import { getPortfolioCategories } from '@/actions/portfolio-categories'
+import { trackPageView } from '@/actions/analytics'
 import type { PortfolioProjectWithImages } from '@/types/portfolio'
 
 export default function PortfolioPage() {
@@ -20,6 +21,9 @@ export default function PortfolioPage() {
   const [carouselStates, setCarouselStates] = useState<Record<string, number>>({})
 
   useEffect(() => {
+    // Track page view
+    trackPageView('portfolio')
+
     async function fetchData() {
       try {
         const [projectsResult, categoriesResult] = await Promise.all([

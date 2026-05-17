@@ -10,10 +10,12 @@ import FooterSection from '@/components/sections/footer-section'
 import WhatsAppButton from '@/components/whatsapp-button'
 import LoadingScreen from '@/components/loading-screen'
 import SmoothScrollProvider from '@/components/smooth-scroll-provider'
+import AnalyticsTracker from '@/components/AnalyticsTracker'
 
 export default function Home() {
   return (
     <SmoothScrollProvider>
+      <AnalyticsTracker page="home" />
       <LoadingScreen />
       <Navbar />
       <main>

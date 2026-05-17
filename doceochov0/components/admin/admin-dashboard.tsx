@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { logoutAdmin } from '@/actions/admin-auth'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard, Settings, Users, FileText, MessageSquare, ArrowLeft, Image as ImageIcon, List, Layers, Quote as QuoteIcon } from 'lucide-react'
+import { LayoutDashboard, Settings, Users, FileText, MessageSquare, ArrowLeft, Image as ImageIcon, List, Layers, Quote as QuoteIcon, BarChart3 } from 'lucide-react'
 import AdminMessages from '@/components/admin/admin-messages'
 import AdminProjects from '@/components/admin/admin-projects'
 import AdminProjectForm from '@/components/admin/admin-project-form'
@@ -18,6 +18,7 @@ import AdminSEOMetadata from './admin-seo-metadata'
 import AdminAboutContent from './admin-about-content'
 import AdminThemeColors from './AdminThemeColors'
 import AdminPortfolioCategories from './AdminPortfolioCategories'
+import AdminAnalytics from './AdminAnalytics'
 import { getContactMessages } from '@/actions/contact-messages'
 import { getProjects } from '@/actions/projects'
 import { getPortfolioProjects } from '@/actions/portfolio-images'
@@ -35,7 +36,7 @@ export default function AdminDashboard() {
   const [processStepCount, setProcessStepCount] = useState(0)
   const [materialQualityCount, setMaterialQualityCount] = useState(0)
   const [testimonialCount, setTestimonialCount] = useState(0)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about' | 'settings' | 'theme' | 'categories'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'portfolio' | 'messages' | 'process' | 'materials' | 'testimonials' | 'config' | 'hero' | 'seo' | 'about' | 'settings' | 'theme' | 'categories' | 'analytics'>('dashboard')
   const [editingProject, setEditingProject] = useState<any>(null)
   const [editingPortfolioImage, setEditingPortfolioImage] = useState<any>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -353,7 +354,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Dashboard Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <button
                 onClick={() => setCurrentView('settings')}
                 className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-8 hover:border-gold/40 transition-colors duration-300 text-left"
@@ -374,6 +375,16 @@ export default function AdminDashboard() {
                 </div>
                 <h3 className="font-serif text-xl text-cream mb-2">Mensajes</h3>
                 <p className="text-cream/60 text-sm">Ver los mensajes del formulario de contacto</p>
+              </button>
+              <button
+                onClick={() => setCurrentView('analytics')}
+                className="bg-petroleum-light/20 border border-cream/10 rounded-lg p-8 hover:border-gold/40 transition-colors duration-300 text-left"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-gold"><BarChart3 className="w-12 h-12" /></div>
+                </div>
+                <h3 className="font-serif text-xl text-cream mb-2">Estadísticas</h3>
+                <p className="text-cream/60 text-sm">Ver métricas de visitas al sitio</p>
               </button>
             </div>
 
@@ -478,6 +489,12 @@ export default function AdminDashboard() {
         {currentView === 'categories' && (
           <div>
             <AdminPortfolioCategories />
+          </div>
+        )}
+
+        {currentView === 'analytics' && (
+          <div>
+            <AdminAnalytics />
           </div>
         )}
       </main>
