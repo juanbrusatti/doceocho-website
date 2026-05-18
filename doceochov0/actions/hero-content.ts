@@ -17,7 +17,11 @@ const heroContentSchema = z.object({
 })
 
 const imageFileSchema = z
-  .instanceof(File)
+  .object({
+    name: z.string(),
+    type: z.string(),
+    size: z.number(),
+  })
   .refine((file) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
     return validTypes.includes(file.type)

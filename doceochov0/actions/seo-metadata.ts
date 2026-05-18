@@ -17,7 +17,11 @@ const seoMetadataSchema = z.object({
 })
 
 const imageFileSchema = z
-  .instanceof(File)
+  .object({
+    name: z.string(),
+    type: z.string(),
+    size: z.number(),
+  })
   .refine((file) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/x-icon', 'image/vnd.microsoft.icon']
     return validTypes.includes(file.type)
