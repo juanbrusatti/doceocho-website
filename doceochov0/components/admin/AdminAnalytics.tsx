@@ -115,7 +115,7 @@ export default function AdminAnalytics() {
                     className="absolute bottom-0 left-0 right-0 bg-gold transition-all duration-300 rounded-t"
                     style={{ height: `${Math.max(height, 2)}%` }}
                   />
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-petroleum-dark text-cream text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-petroleum-dark text-cream text-xs px-2 py-1 rounded opacity-100 transition-opacity whitespace-nowrap">
                     {stat.count} visitas
                   </div>
                 </div>
