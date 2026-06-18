@@ -270,7 +270,7 @@ export async function createPortfolioProject(formData: {
       
       return {
         success: false,
-        error: 'Failed to upload images',
+        error: error instanceof Error ? error.message : 'Failed to upload images',
       }
     }
 
@@ -621,7 +621,7 @@ export async function deletePortfolioProject(id: string) {
     console.error('Portfolio project deletion error:', error)
     return {
       success: false,
-      error: 'An error occurred',
+      error: error instanceof Error ? error.message : 'An error occurred',
     }
   }
 }
