@@ -93,7 +93,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es-AR" className={`${cormorant.variable} ${dmSans.variable} bg-background`}>
+    <html lang="es-AR" className={`${cormorant.variable} ${dmSans.variable} bg-background`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
