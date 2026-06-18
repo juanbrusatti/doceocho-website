@@ -16,11 +16,11 @@ export async function uploadImage(
       }
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
       return {
         success: false,
-        error: 'File size must be less than 5MB',
+        error: 'File size must be less than 10MB',
       }
     }
 
