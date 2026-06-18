@@ -94,6 +94,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es-AR" className={`${cormorant.variable} ${dmSans.variable} bg-background`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const storedColors = localStorage.getItem('theme-colors');
+                  if (storedColors) {
+                    const colors = JSON.parse(storedColors);
+                    const root = document.documentElement;
+                    root.style.setProperty('--petroleum-dark', colors.petroleum_dark);
+                    root.style.setProperty('--gold', colors.gold);
+                    root.style.setProperty('--cream', colors.cream);
+                    root.style.setProperty('--petroleum', colors.petroleum_light);
+                    root.style.setProperty('--sand', colors.petroleum_light);
+                  }
+                } catch (e) {
+                  console.error('Error applying theme colors from localStorage:', e);
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased grain-overlay">
         <SiteThemeProvider>
           {children}

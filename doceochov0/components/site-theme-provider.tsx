@@ -20,6 +20,9 @@ export default function SiteThemeProvider({ children }: { children: React.ReactN
           root.style.setProperty('--cream', colors.cream)
           root.style.setProperty('--petroleum', colors.petroleum_light)
           root.style.setProperty('--sand', colors.petroleum_light)
+
+          // Save to localStorage for instant loading
+          localStorage.setItem('theme-colors', JSON.stringify(colors))
         }
       } catch (error) {
         console.error('Error fetching theme colors:', error)

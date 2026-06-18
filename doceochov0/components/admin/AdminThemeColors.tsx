@@ -83,6 +83,8 @@ export default function AdminThemeColors() {
       const result = await updateThemeColors(formData)
       if (result.success && result.colors) {
         setColors(result.colors)
+        // Save to localStorage for instant loading
+        localStorage.setItem('theme-colors', JSON.stringify(result.colors))
         setEditing(false)
         setSuccess(true)
         successTimeoutRef.current = setTimeout(() => {
